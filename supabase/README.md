@@ -20,7 +20,7 @@ On n'utilise pas le CLI Supabase pour ce projet (Phase 4 = dashboard).
 | — | | | **Vérifier le trigger** : _Table Editor → profiles_ contient bien 3 lignes (rôle `parent` par défaut). |
 | 3 | `03_rls.sql` | Active la RLS + toutes les policies sur les 5 tables | Vérifier dans _Table Editor_ la mention « RLS enabled » sur chaque table. |
 | 4 | `04_seed_test_data.sql` | Promeut le staff, crée Ana Maria / Sarah / Ilyès, crée les liens parent-enfant | **Avant** : _Rechercher/Remplacer_ `prenom.nom` → la partie avant le `@` de ton Gmail. |
-| 5 | `05_rls_test.sql` | Teste l'isolation (parent 1 ↝ Ana Maria + Sarah, parent 2 ↝ Ilyès, staff ↝ les 3) | Copier les UUID depuis _Authentication → Users_ dans le script. |
+| 5 | `05_rls_test.sql` | Teste l'isolation (parent 1 ↝ Ana Maria + Sarah, parent 2 ↝ Ilyès, staff ↝ les 3) | Remplacer `prenom.nom`, puis lancer **chaque bloc séparément** (sélection + Ctrl/Cmd+Entrée) : le SQL Editor n'affiche que le dernier résultat. |
 
 ## Critère bloquant
 
