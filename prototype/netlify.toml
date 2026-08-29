@@ -2,7 +2,7 @@
 # ou connexion du repo avec "Base directory" = prototype).
 [build]
   base = "prototype"
-  command = "pnpm install --ignore-workspace && pnpm run build"
+  command = "pnpm install --frozen-lockfile --ignore-scripts && pnpm run build"
   publish = "dist"
 
 [build.environment]

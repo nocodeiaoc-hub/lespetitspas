@@ -1,5 +1,7 @@
 # Rend /prototype autonome : pnpm utilise ce dossier comme racine,
 # independamment du workspace Next.js a la racine du repo.
+# pnpm 11 : autoriser explicitement les scripts de post-install (sinon
+# ERR_PNPM_IGNORED_BUILDS fait echouer l'install en CI).
 allowBuilds:
   esbuild: true
   "@tailwindcss/oxide": true

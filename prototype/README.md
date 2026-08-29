@@ -14,7 +14,7 @@ Sert de référence visuelle avant le développement (Phase 4+) et en soutenance
 
 ```bash
 cd prototype
-pnpm install --ignore-workspace
+pnpm install
 pnpm dev
 ```
 

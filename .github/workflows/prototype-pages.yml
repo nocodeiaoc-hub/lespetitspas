@@ -36,7 +36,10 @@ jobs:
         with:
           node-version: 20
 
-      - run: pnpm install --frozen-lockfile
+      # --ignore-scripts : evite ERR_PNPM_IGNORED_BUILDS (fatal en CI avec pnpm 11).
+      # esbuild / @tailwindcss/oxide fonctionnent via leurs paquets binaires par
+      # plateforme (deja dans le lockfile), sans script de post-install.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - run: pnpm test
 
