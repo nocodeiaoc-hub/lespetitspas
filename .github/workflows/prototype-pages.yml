@@ -29,9 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Version de pnpm lue depuis "packageManager" du package.json a la racine du repo.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v4
         with:
@@ -39,7 +38,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: prototype/pnpm-lock.yaml
 
-      - run: pnpm install --frozen-lockfile --ignore-workspace
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm test
 
