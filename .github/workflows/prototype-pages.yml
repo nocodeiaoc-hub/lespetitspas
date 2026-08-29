@@ -36,12 +36,25 @@ jobs:
         with:
           node-version: 20
 
-      # --ignore-workspace : /prototype est un projet autonome, on ignore le
-      #   pnpm-workspace.yaml Next.js a la racine du repo.
-      # --ignore-scripts : evite ERR_PNPM_IGNORED_BUILDS (fatal en CI avec pnpm 11) ;
-      #   esbuild / @tailwindcss/oxide marchent via leurs binaires par plateforme
-      #   (deja dans le lockfile), sans script de post-install.
-      - run: pnpm install --frozen-lockfile --ignore-workspace --ignore-scripts
+      - name: Diagnostic
+        run: |
+          {
+            echo "node $(node -v)"
+            echo "pnpm $(pnpm -v)"
+            echo "cwd $(pwd)"
+            echo "files: $(ls -A | tr '\n' ' ')"
+            echo "lockfile line1: $(head -1 pnpm-lock.yaml)"
+          } | sed 's/^/::warning::/'
+
+      # --ignore-workspace : /prototype est un projet autonome.
+      # --ignore-scripts : evite ERR_PNPM_IGNORED_BUILDS (fatal en CI avec pnpm 11).
+      - name: Install
+        run: |
+          set -o pipefail
+          if ! pnpm install --frozen-lockfile --ignore-workspace --ignore-scripts 2>&1 | tee /tmp/i.log; then
+            tail -50 /tmp/i.log | sed 's/^/::error::/'
+            exit 1
+          fi
 
       - run: pnpm test
 
