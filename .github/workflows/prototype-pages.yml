@@ -29,32 +29,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Version de pnpm lue depuis "packageManager" du package.json a la racine du repo.
+      # Version de pnpm lue depuis "packageManager" du package.json a la racine.
       - uses: pnpm/action-setup@v4
 
+      # pnpm 11 exige Node >= 22.13.
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Diagnostic
-        run: |
-          {
-            echo "node $(node -v)"
-            echo "pnpm $(pnpm -v)"
-            echo "cwd $(pwd)"
-            echo "files: $(ls -A | tr '\n' ' ')"
-            echo "lockfile line1: $(head -1 pnpm-lock.yaml)"
-          } | sed 's/^/::warning::/'
+          node-version: 22
 
       # --ignore-workspace : /prototype est un projet autonome.
-      # --ignore-scripts : evite ERR_PNPM_IGNORED_BUILDS (fatal en CI avec pnpm 11).
-      - name: Install
-        run: |
-          set -o pipefail
-          if ! pnpm install --frozen-lockfile --ignore-workspace --ignore-scripts 2>&1 | tee /tmp/i.log; then
-            tail -50 /tmp/i.log | sed 's/^/::error::/'
-            exit 1
-          fi
+      # --ignore-scripts : evite ERR_PNPM_IGNORED_BUILDS (fatal en CI avec pnpm 11) ;
+      #   esbuild / @tailwindcss/oxide marchent via leurs binaires par plateforme.
+      - run: pnpm install --frozen-lockfile --ignore-workspace --ignore-scripts
 
       - run: pnpm test
 
