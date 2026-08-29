@@ -1,0 +1,8 @@
+# Rend /prototype autonome : pnpm utilise ce dossier comme racine,
+# independamment du workspace Next.js a la racine du repo.
+allowBuilds:
+  esbuild: true
+  "@tailwindcss/oxide": true
+onlyBuiltDependencies:
+  - esbuild
+  - "@tailwindcss/oxide"

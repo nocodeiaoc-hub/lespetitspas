@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# personal notes
+JOURNAL.md
+
+# prototype (Vite app autonome dans /prototype)
+/prototype/node_modules
+/prototype/dist
+/prototype/.vite

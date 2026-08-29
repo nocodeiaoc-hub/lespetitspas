@@ -1,0 +1,15 @@
+# Deploiement alternatif sur Netlify (glisser-deposer du dossier "dist"
+# ou connexion du repo avec "Base directory" = prototype).
+[build]
+  base = "prototype"
+  command = "pnpm install --ignore-workspace && pnpm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# HashRouter -> pas besoin de redirection SPA, mais on la met par securite.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
