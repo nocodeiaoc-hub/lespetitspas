@@ -7,14 +7,15 @@ Sert de référence visuelle avant le développement (Phase 4+) et en soutenance
 - **Données** : 100 % **fictives**, en mémoire. Aucune connexion à Supabase / Resend.
   Tout se réinitialise au rechargement de la page.
 - **Charte** : « Nuage » (lavande / menthe sauge / rose blush, Plus Jakarta Sans + DM Sans)
-- **Isolé du reste du repo** : ce dossier a son propre `package.json` et n'est pas
-  dans le workspace pnpm. Il n'affecte pas l'app Next.js à la racine.
+- **Isolé du reste du repo** : ce dossier a son propre `package.json` et son propre
+  `pnpm-lock.yaml`. On l'installe avec `--ignore-workspace` pour ne pas toucher au
+  workspace pnpm / à l'app Next.js de la racine.
 
 ## Lancer en local
 
 ```bash
 cd prototype
-pnpm install
+pnpm install --ignore-workspace
 pnpm dev
 ```
 
