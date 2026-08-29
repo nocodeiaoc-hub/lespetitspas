@@ -69,9 +69,9 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     à partir du modèle US-01.
   - Ils sont appliqués via le **SQL Editor** de Supabase sur `lespetitspas`.
   - Les scripts de structure sont versionnés (`supabase/` ou `docs/sql/`).
-- **Statut** : En cours
-- **Contraintes / Dépendances** : dépend de **US-01**. Script écrit
-  (`supabase/01_schema.sql`) ; reste à l'exécuter dans le SQL Editor de `lespetitspas`.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-01**. `supabase/01_schema.sql` appliqué
+  sur `lespetitspas` ; à rejouer sur `lespetitspas-prod` en fin de Phase 4.
 - **Description technique** : génération assistée par IA, exécution manuelle dans le
   SQL Editor. Types d'événements (valeurs ASCII) : `repas`, `sieste`, `activite`,
   `medicament`, `incident`.
@@ -85,9 +85,9 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - `profiles.id = auth.uid()` (référence `auth.users`).
   - Un **trigger SQL** insère une ligne dans `profiles` à chaque nouvelle inscription.
   - `profiles.role` vaut `staff` ou `parent`, jamais modifiable depuis l'application.
-- **Statut** : En cours
-- **Contraintes / Dépendances** : dépend de **US-02**. Script écrit
-  (`supabase/02_auth_trigger.sql`) ; reste à l'exécuter + vérifier dans le Table Editor.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-02**. `supabase/02_auth_trigger.sql`
+  appliqué ; profils créés automatiquement, vérifié. À rejouer sur `lespetitspas-prod`.
 - **Description technique** : fonction `handle_new_user()` (SECURITY DEFINER) + trigger
   `on_auth_user_created` sur `auth.users`. Rôle par défaut `parent` (le staff est promu
   par `supabase/04_seed_test_data.sql`).
@@ -107,10 +107,10 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     UPDATE staff (statuts).
   - `family_members` : SELECT si staff ou si le profil concerné = utilisateur connecté ;
     écriture hors interface (script SQL).
-- **Statut** : En cours
-- **Contraintes / Dépendances** : dépend de **US-02**, **US-03**. Bloquant pour toute la
-  Phase 6 (isolation parent). Script écrit (`supabase/03_rls.sql`) ; reste à l'exécuter et
-  à valider avec `supabase/05_rls_test.sql`.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-02**, **US-03**. `supabase/03_rls.sql`
+  appliqué ; isolation **validée** avec `supabase/05_rls_test.sql` (chaque parent ne voit
+  que ses enfants, un parent ne peut pas créer d'événement). À rejouer sur `lespetitspas-prod`.
 - **Description technique** : policies `using` / `with check`, helper `is_staff()` et
   jointure `family_members`. À tester depuis le SQL Editor en se faisant passer pour un user.
 
@@ -124,9 +124,9 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Option **Confirm email** cohérente avec les comptes de test (si active, adresses
     confirmées avant première connexion).
   - Réinitialisation de mot de passe gérée nativement par Supabase Auth.
-- **Statut** : En cours
-- **Contraintes / Dépendances** : dépend de **US-03**. 100 % dashboard : checklist dans
-  `supabase/README.md` ; choix `Confirm email` à consigner dans `JOURNAL.md`.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-03**. Provider Email activé, 3 comptes de
+  test créés et fonctionnels. Reste à consigner le choix `Confirm email` dans `JOURNAL.md`.
 - **Description technique** : réglages tableau de bord Supabase (Authentication → Providers,
   Email templates, URL de redirection `NEXT_PUBLIC_APP_URL`).
 
@@ -140,11 +140,10 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Enfants répartis sur les 3 sections (Bébés, Moyens, Grands), avec allergies variées et
     `medication_allowed` à `true` pour certains / `false` pour d'autres.
   - Liens `family_members` créés par script SQL.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-02**, **US-03**. Uniquement sur
-  `lespetitspas` (jamais sur `lespetitspas-prod`). Script écrit
-  (`supabase/04_seed_test_data.sql`) ; reste à créer les 3 comptes dans le dashboard,
-  remplacer `prenom.nom` et lancer le script.
+  `lespetitspas` (jamais sur `lespetitspas-prod`). `supabase/04_seed_test_data.sql`
+  appliqué : staff promu, 3 enfants (Ana Maria, Sarah, Ilyès), liens `family_members` OK.
 - **Description technique** : script `04_seed_test_data.sql` idempotent (promotion staff,
   enfants Ana Maria / Sarah / Ilyès, liens `family_members` par lookup email). Non appliqué
   en production.

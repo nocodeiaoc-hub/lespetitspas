@@ -161,7 +161,7 @@ Message d'un parent vers l'équipe. Modèle **asynchrone** (pas de temps réel).
 
 Index : `(created_at desc)`, `(child_id)`.
 
-## Choix de conception (à justifier en soutenance)
+## Choix de conception 
 
 1. **`profiles` séparé de `auth.users`** : `auth.users` appartient à Supabase.
    On ajoute nos champs métier (rôle, prénom) dans `profiles`, liée 1-1 par un
