@@ -69,12 +69,20 @@ Connexion par formulaire aussi possible : utiliser une adresse email d'un profil
 
 ### Option A — GitHub Pages (workflow fourni)
 
-1. Sur GitHub : **Settings → Pages → Source = « GitHub Actions »**.
-2. Pousser sur `main` ou `staging` (le workflow `.github/workflows/prototype-pages.yml`
-   se déclenche sur toute modification de `prototype/**`).
-3. URL finale : `https://<utilisateur>.github.io/LesPetitsPas/`
+1. Sur GitHub : **Settings → Pages → Source = « GitHub Actions »** (déjà fait).
+2. Le workflow `.github/workflows/prototype-pages.yml` se déclenche sur `prototype/**` :
+   - sur `staging` : il valide seulement (install + tests + build) ;
+   - sur `main` : il valide **et déploie** sur Pages (GitHub n'autorise le
+     déploiement Pages que depuis la branche par défaut).
+3. Pour publier : ouvrir une Pull Request `staging → main` et la fusionner
+   (c'est déjà le flux de mise en production du projet).
+4. URL finale : `https://<utilisateur>.github.io/LesPetitsPas/`
 
 Le build de déploiement utilise `pnpm run build:pages` (base `/LesPetitsPas/`).
+
+> Variante : pour déployer directement depuis `staging` sans PR, ajouter `staging`
+> dans **Settings → Environments → github-pages → Deployment branches**, puis
+> retirer la condition `if:` du job `deploy`.
 
 ### Option B — Netlify
 

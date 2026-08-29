@@ -50,8 +50,11 @@ jobs:
         with:
           path: prototype/dist
 
+  # Le deploiement Pages n'est autorise que depuis la branche par defaut (main).
+  # Sur staging, seul le job "build" tourne : il valide install + tests + build.
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
