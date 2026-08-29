@@ -52,11 +52,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Le rôle (`staff` / `parent`) est porté par `profiles.role`.
   - Chaque `event` conserve son auteur (`author_id`) et son horodatage (`created_at`).
   - Un enfant peut être rattaché à une ou deux familles via `family_members`.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : conception faite avec une IA gratuite (pas Cursor).
   Aucune dépendance.
 - **Description technique** : modélisation type P3 (Airtable) transposée sur Postgres.
-  Diagramme + dictionnaire de données dans `docs/datamodel.md`.
+  Diagramme Mermaid + dictionnaire de données livrés dans `docs/datamodel.md`. Modèle
+  validé (6 tables, `events` en table unique avec colonnes typées + CHECK).
 
 ### US-02 — Scripts SQL de création des tables
 
@@ -68,10 +69,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     à partir du modèle US-01.
   - Ils sont appliqués via le **SQL Editor** de Supabase sur `lespetitspas`.
   - Les scripts de structure sont versionnés (`supabase/` ou `docs/sql/`).
-- **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-01**.
+- **Statut** : En cours
+- **Contraintes / Dépendances** : dépend de **US-01**. Script écrit
+  (`supabase/01_schema.sql`) ; reste à l'exécuter dans le SQL Editor de `lespetitspas`.
 - **Description technique** : génération assistée par IA, exécution manuelle dans le
-  SQL Editor. Types d'événements : `repas`, `sieste`, `activité`, `médicament`, `incident`.
+  SQL Editor. Types d'événements (valeurs ASCII) : `repas`, `sieste`, `activite`,
+  `medicament`, `incident`.
 
 ### US-03 — Table `profiles` + trigger de création automatique
 
@@ -82,10 +85,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - `profiles.id = auth.uid()` (référence `auth.users`).
   - Un **trigger SQL** insère une ligne dans `profiles` à chaque nouvelle inscription.
   - `profiles.role` vaut `staff` ou `parent`, jamais modifiable depuis l'application.
-- **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-02**.
-- **Description technique** : fonction `handle_new_user()` + trigger `on_auth_user_created`
-  sur `auth.users`. Rôle par défaut `parent` (le staff est promu en base).
+- **Statut** : En cours
+- **Contraintes / Dépendances** : dépend de **US-02**. Script écrit
+  (`supabase/02_auth_trigger.sql`) ; reste à l'exécuter + vérifier dans le Table Editor.
+- **Description technique** : fonction `handle_new_user()` (SECURITY DEFINER) + trigger
+  `on_auth_user_created` sur `auth.users`. Rôle par défaut `parent` (le staff est promu
+  par `supabase/04_seed_test_data.sql`).
 
 ### US-04 — Row Level Security (RLS) sur toutes les tables
 
@@ -102,9 +107,10 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     UPDATE staff (statuts).
   - `family_members` : SELECT si staff ou si le profil concerné = utilisateur connecté ;
     écriture hors interface (script SQL).
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-02**, **US-03**. Bloquant pour toute la
-  Phase 6 (isolation parent).
+  Phase 6 (isolation parent). Script écrit (`supabase/03_rls.sql`) ; reste à l'exécuter et
+  à valider avec `supabase/05_rls_test.sql`.
 - **Description technique** : policies `using` / `with check`, helper `is_staff()` et
   jointure `family_members`. À tester depuis le SQL Editor en se faisant passer pour un user.
 
@@ -118,8 +124,9 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Option **Confirm email** cohérente avec les comptes de test (si active, adresses
     confirmées avant première connexion).
   - Réinitialisation de mot de passe gérée nativement par Supabase Auth.
-- **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-03**.
+- **Statut** : En cours
+- **Contraintes / Dépendances** : dépend de **US-03**. 100 % dashboard : checklist dans
+  `supabase/README.md` ; choix `Confirm email` à consigner dans `JOURNAL.md`.
 - **Description technique** : réglages tableau de bord Supabase (Authentication → Providers,
   Email templates, URL de redirection `NEXT_PUBLIC_APP_URL`).
 
@@ -133,10 +140,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Enfants répartis sur les 3 sections (Bébés, Moyens, Grands), avec allergies variées et
     `medication_allowed` à `true` pour certains / `false` pour d'autres.
   - Liens `family_members` créés par script SQL.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-02**, **US-03**. Uniquement sur
-  `lespetitspas` (jamais sur `lespetitspas-prod`).
-- **Description technique** : script `seed.sql` non appliqué en production.
+  `lespetitspas` (jamais sur `lespetitspas-prod`). Script écrit
+  (`supabase/04_seed_test_data.sql`) ; reste à créer les 3 comptes dans le dashboard,
+  remplacer `prenom.nom` et lancer le script.
+- **Description technique** : script `04_seed_test_data.sql` idempotent (promotion staff,
+  enfants Ana Maria / Sarah / Ilyès, liens `family_members` par lookup email). Non appliqué
+  en production.
 
 ### US-07 — Écran de connexion `/login`
 
