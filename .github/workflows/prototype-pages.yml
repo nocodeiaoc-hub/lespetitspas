@@ -1,0 +1,64 @@
+name: Prototype - GitHub Pages
+
+# Deploie le prototype de design (/prototype) sur GitHub Pages.
+# A activer une seule fois : Settings > Pages > Source = "GitHub Actions".
+
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - "prototype/**"
+      - ".github/workflows/prototype-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: prototype-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prototype
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version de pnpm lue depuis "packageManager" du package.json a la racine.
+      - uses: pnpm/action-setup@v4
+
+      # pnpm 11 exige Node >= 22.13.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # --ignore-workspace : /prototype est un projet autonome.
+      # --ignore-scripts : evite ERR_PNPM_IGNORED_BUILDS (fatal en CI avec pnpm 11) ;
+      #   esbuild / @tailwindcss/oxide marchent via leurs binaires par plateforme.
+      - run: pnpm install --frozen-lockfile --ignore-workspace --ignore-scripts
+
+      - run: pnpm test
+
+      - run: pnpm run build:pages
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: prototype/dist
+
+  # Le deploiement Pages n'est autorise que depuis la branche par defaut (main).
+  # Sur staging, seul le job "build" tourne : il valide install + tests + build.
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
