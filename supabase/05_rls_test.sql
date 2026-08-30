@@ -19,7 +19,7 @@ select u.email, p.role, p.first_name, p.last_name
 from auth.users u
 join public.profiles p on p.id = u.id
 order by u.email;
--- Attendu : 3 lignes, dont prenom.nom+staff@... avec role = staff.
+-- Attendu : 3 lignes, dont nocodeia.oc+staff@... avec role = staff.
 
 
 -- =================== BLOC 1 — PARENT 1 : Ana Maria + Sarah ===================
@@ -27,7 +27,7 @@ begin;
   select set_config(
     'request.jwt.claims',
     json_build_object(
-      'sub', (select id from auth.users where email = 'prenom.nom+parent1@gmail.com'),
+      'sub', (select id from auth.users where email = 'nocodeia.oc+parent1@gmail.com'),
       'role', 'authenticated'
     )::text,
     true
@@ -44,7 +44,7 @@ begin;
   select set_config(
     'request.jwt.claims',
     json_build_object(
-      'sub', (select id from auth.users where email = 'prenom.nom+parent2@gmail.com'),
+      'sub', (select id from auth.users where email = 'nocodeia.oc+parent2@gmail.com'),
       'role', 'authenticated'
     )::text,
     true
@@ -61,7 +61,7 @@ begin;
   select set_config(
     'request.jwt.claims',
     json_build_object(
-      'sub', (select id from auth.users where email = 'prenom.nom+staff@gmail.com'),
+      'sub', (select id from auth.users where email = 'nocodeia.oc+staff@gmail.com'),
       'role', 'authenticated'
     )::text,
     true
@@ -78,7 +78,7 @@ begin;
   select set_config(
     'request.jwt.claims',
     json_build_object(
-      'sub', (select id from auth.users where email = 'prenom.nom+parent1@gmail.com'),
+      'sub', (select id from auth.users where email = 'nocodeia.oc+parent1@gmail.com'),
       'role', 'authenticated'
     )::text,
     true

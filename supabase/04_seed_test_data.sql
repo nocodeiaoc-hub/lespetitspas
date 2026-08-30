@@ -27,17 +27,17 @@
 update public.profiles p
 set role = 'staff', first_name = 'Camille', last_name = 'Bonnet'
 from auth.users u
-where u.id = p.id and u.email = 'prenom.nom+staff@gmail.com';
+where u.id = p.id and u.email = 'nocodeia.oc+staff@gmail.com';
 
 update public.profiles p
 set first_name = 'Léa', last_name = 'Martin'
 from auth.users u
-where u.id = p.id and u.email = 'prenom.nom+parent1@gmail.com';
+where u.id = p.id and u.email = 'nocodeia.oc+parent1@gmail.com';
 
 update public.profiles p
 set first_name = 'Thomas', last_name = 'Dubois'
 from auth.users u
-where u.id = p.id and u.email = 'prenom.nom+parent2@gmail.com';
+where u.id = p.id and u.email = 'nocodeia.oc+parent2@gmail.com';
 
 -- --- B. Enfants --------------------------------------------------------------
 -- Au moins un enfant AVEC autorisation de médicament, un SANS (règle médicament).
@@ -57,7 +57,7 @@ cross join (
   select pr.id
   from public.profiles pr
   join auth.users u on u.id = pr.id
-  where u.email = 'prenom.nom+parent1@gmail.com'
+  where u.email = 'nocodeia.oc+parent1@gmail.com'
 ) p
 where c.first_name in ('Ana Maria', 'Sarah')
 on conflict (child_id, profile_id) do nothing;
@@ -70,7 +70,7 @@ cross join (
   select pr.id
   from public.profiles pr
   join auth.users u on u.id = pr.id
-  where u.email = 'prenom.nom+parent2@gmail.com'
+  where u.email = 'nocodeia.oc+parent2@gmail.com'
 ) p
 where c.first_name = 'Ilyès'
 on conflict (child_id, profile_id) do nothing;
