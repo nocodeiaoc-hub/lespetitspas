@@ -63,6 +63,7 @@
   --color-ink-soft: var(--ink-soft);
   --color-line: var(--line);
   --color-success: var(--success);
+  --color-success-strong: var(--success-strong);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
@@ -150,6 +151,7 @@
   --ink-soft: #78909c;
   --line: #e2e8f0;
   --success: #4caf82;
+  --success-strong: #2f8f85;
   --success-soft: #e0f2f0;
   --warning: #f0a850;
   --warning-soft: #fff2df;
@@ -206,6 +208,7 @@
   --ink-soft: #a6b0d0;
   --line: rgba(255, 255, 255, 0.1);
   --success: #6cc79b;
+  --success-strong: #8fd8b0;
   --success-soft: #22423f;
   --warning: #f0a850;
   --warning-soft: #3a2f1e;

@@ -271,12 +271,16 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Recherche par prénom/nom.
   - Filtre par section : Bébés / Moyens / Grands (+ « Tous »).
   - Carte enfant : avatar (photo si URL renseignée, sinon initiales colorées), prénom,
-    section, indicateur d'activité du jour dérivé côté interface (présence d'événements).
+    section.
   - Clic sur une carte → fiche enfant.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-07**. Route : `/staff`.
-- **Description technique** : Server Component qui lit `children` (RLS staff), recherche/filtre
-  côté client. Pas de champ « statut » stocké en base.
+  L'indicateur d'activité du jour est sorti dans **US-39** (dépend des événements, US-13).
+- **Description technique** : `app/staff/page.tsx` (Server Component) lit `children`
+  (RLS staff), passe la liste à `app/staff/children-list.tsx` (`"use client"`) qui gère
+  recherche (tolérante aux accents) et filtre de section. Cartes = `<Link>` vers
+  `/staff/children/[id]`. Composant `ChildAvatar` (photo → repli initiales colorées).
+  États vides : aucun enfant / aucun résultat. Pas de champ « statut » stocké en base.
 
 ### US-12 — Fiche enfant : résumé `/staff/children/[id]`
 
@@ -381,6 +385,21 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Contraintes / Dépendances** : transverse aux US-11 à US-17.
 - **Description technique** : composants `EmptyState` / `ErrorBanner`, `error.tsx` et
   `loading.tsx` de l'App Router.
+
+### US-39 — Indicateur d'activité du jour sur la carte enfant (`/staff`)
+
+- **User Story** : En tant qu'équipe, je veux voir d'un coup d'œil quels enfants ont déjà
+  des événements aujourd'hui afin de repérer ceux dont la journée n'est pas encore saisie.
+- **Entité** : `events`, `children`
+- **Critères d'acceptation** :
+  - Chaque carte de `/staff` affiche « Aucun événement aujourd'hui » ou « N événement(s)
+    aujourd'hui », dérivé côté interface (pas de champ stocké).
+  - Le comptage porte sur la journée en cours (fuseau Europe/Paris).
+- **Statut** : À faire
+- **Contraintes / Dépendances** : sortie de **US-11**. Dépend de **US-13** (bornes de date
+  des événements). Route : `/staff`.
+- **Description technique** : requête `events` (RLS staff) filtrée sur `created_at` >= début
+  de journée locale, agrégée par `child_id`, jointe à la liste côté Server Component.
 
 ---
 
