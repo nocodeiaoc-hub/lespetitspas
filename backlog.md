@@ -369,7 +369,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Liste triée du plus récent au plus ancien (pas un fil de discussion par enfant).
   - Chaque ligne : prénom du parent, prénom de l'enfant concerné, extrait, date/heure, statut.
   - Filtre par statut.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-07**. Route : `/staff/messages`.
 - **Description technique** : `page.tsx` (Server Component) lit `messages` (RLS staff)
   triés `created_at desc`, joint `from_profile_id`→`profiles.first_name` et
@@ -386,7 +386,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Un message arrive en `nouveau`.
   - Il passe à `lu` quand l'équipe l'ouvre.
   - Il passe à `traité` via un bouton dédié, une fois l'information prise en compte.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-16**.
 - **Description technique** : Server Actions `markRead` / `markProcessed`
   (`app/staff/messages/actions.ts`, garde staff, `UPDATE messages.status`, RLS staff).
