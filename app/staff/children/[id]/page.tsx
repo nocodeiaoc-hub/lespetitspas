@@ -175,13 +175,15 @@ export default async function StaffChildDetailPage({
               </li>
             ))}
           </ul>
-          {messages.length > 3 && (
-            <p className="mt-2 text-xs text-ink-soft">
-              … et {messages.length - 3} autre
-              {messages.length - 3 > 1 ? "s" : ""}. La messagerie complète arrive
-              avec l&apos;US-16.
-            </p>
-          )}
+          <Link
+            href="/staff/messages"
+            className="mt-2 inline-block text-xs font-semibold text-accent-strong hover:underline"
+          >
+            {messages.length > 3
+              ? `Voir les ${messages.length} messages`
+              : "Ouvrir la messagerie"}{" "}
+            →
+          </Link>
         </section>
       )}
 

@@ -369,9 +369,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Liste triée du plus récent au plus ancien (pas un fil de discussion par enfant).
   - Chaque ligne : prénom du parent, prénom de l'enfant concerné, extrait, date/heure, statut.
   - Filtre par statut.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-07**. Route : `/staff/messages`.
-- **Description technique** : lecture `messages` (RLS staff) au chargement de la page.
+- **Description technique** : `page.tsx` (Server Component) lit `messages` (RLS staff)
+  triés `created_at desc`, joint `from_profile_id`→`profiles.first_name` et
+  `child_id`→`children.first_name`. `messages-list.tsx` (`"use client"`) : filtre par
+  statut (Tous / Nouveaux / Lus / Traités avec compteurs), carte par message. Lien
+  « Messages » ajouté à la nav de l'espace équipe (`AppShell` + `Nav`).
 
 ### US-17 — Gestion des statuts de message (nouveau / lu / traité)
 
@@ -382,10 +386,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Un message arrive en `nouveau`.
   - Il passe à `lu` quand l'équipe l'ouvre.
   - Il passe à `traité` via un bouton dédié, une fois l'information prise en compte.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-16**.
-- **Description technique** : Server Action / route handler d'`UPDATE messages.status`
-  (RLS : UPDATE staff uniquement).
+- **Description technique** : Server Actions `markRead` / `markProcessed`
+  (`app/staff/messages/actions.ts`, garde staff, `UPDATE messages.status`, RLS staff).
+  Client : `useOptimistic` pour un retour immédiat, clic sur un message « nouveau » →
+  `lu`, bouton « Marquer comme traité » → `traite`. `revalidatePath` rafraîchit aussi
+  le bloc « messages à traiter » de la fiche enfant.
 
 ### US-18 — États vides & états d'erreur (espace équipe)
 
