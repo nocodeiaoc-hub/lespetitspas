@@ -148,6 +148,27 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   enfants Ana Maria / Sarah / Ilyès, liens `family_members` par lookup email). Non appliqué
   en production.
 
+### US-37 — Branchement des clients Supabase (SDK + navigateur/serveur)
+
+- **User Story** : En tant que développeur, je veux préparer la connexion à Supabase
+  (librairies + clients navigateur et serveur) afin que les écrans d'authentification et
+  de données puissent s'appuyer dessus.
+- **Entité** : brique Supabase (`lib/supabase/`)
+- **Critères d'acceptation** :
+  - `@supabase/supabase-js` et `@supabase/ssr` installés.
+  - `.env.local` créé avec `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+    `NEXT_PUBLIC_APP_URL` (valeurs à renseigner par le développeur).
+  - Client navigateur (`lib/supabase/client.ts`) et client serveur
+    (`lib/supabase/server.ts`, asynchrone, gestion des cookies) créés pour l'App Router.
+  - Aucun écran ni style modifié à ce stade ; `pnpm build` au vert.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-05**. Bloquant pour **US-07**, **US-08**.
+  Le middleware de rafraîchissement de session (renommé « proxy » dans cette version de
+  Next.js) est hors périmètre ici et traité en **US-08**. Connexion vérifiée en réel
+  (endpoint Auth joignable, PostgREST joignable, RLS bloque la lecture anonyme de `children`).
+- **Description technique** : `createBrowserClient` / `createServerClient` de `@supabase/ssr`,
+  API cookies `getAll` / `setAll`, `cookies()` de `next/headers` désormais asynchrone.
+
 ### US-07 — Écran de connexion `/login`
 
 - **User Story** : En tant qu'utilisateur, je veux me connecter avec mon email et mon mot
@@ -158,7 +179,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Redirection par rôle : `staff` → `/staff`, `parent` → `/parent`.
   - Un utilisateur déjà connecté qui ouvre `/login` est redirigé vers son espace.
 - **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-05**. Route : `/login`.
+- **Contraintes / Dépendances** : dépend de **US-05**, **US-37**. Route : `/login`.
 - **Description technique** : `@supabase/ssr`, client Supabase côté navigateur pour le
   `signInWithPassword`, lecture du rôle dans `profiles` côté serveur pour la redirection.
 
@@ -172,7 +193,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - La session persiste après rechargement de la page.
   - Après déconnexion, tout accès à une route protégée renvoie vers `/login`.
 - **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-07**.
+- **Contraintes / Dépendances** : dépend de **US-07**, **US-37**.
 - **Description technique** : middleware Next.js de rafraîchissement de session
   (`@supabase/ssr`), cookies httpOnly.
 
