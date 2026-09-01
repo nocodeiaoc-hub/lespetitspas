@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { createServerClient } from "@/lib/supabase/server";
+import { EventForm } from "../event-form";
 
 export default async function NewEventPage({
   params,
@@ -10,7 +11,7 @@ export default async function NewEventPage({
   const supabase = await createServerClient();
   const { data: child } = await supabase
     .from("children")
-    .select("id, first_name, last_name")
+    .select("id, first_name, last_name, medication_allowed")
     .eq("id", id)
     .single();
 
@@ -26,15 +27,18 @@ export default async function NewEventPage({
         Retour à la fiche
       </Link>
 
-      <div className="rounded-lg bg-surface p-6 text-center shadow-soft">
-        <h2 className="text-lg">
-          Ajouter un événement — {child.first_name} {child.last_name}
-        </h2>
-        <p className="mt-2 text-sm text-ink-soft">
-          Le formulaire de saisie (repas, sieste, activité, incident, et la
-          double validation médicament) arrive avec les US-14 et US-15.
+      <header>
+        <h2 className="text-xl">Ajouter un événement</h2>
+        <p className="text-sm text-ink-soft">
+          {child.first_name} {child.last_name}
         </p>
-      </div>
+      </header>
+
+      <EventForm
+        childId={child.id}
+        childName={child.first_name}
+        medicationAllowed={child.medication_allowed}
+      />
     </div>
   );
 }

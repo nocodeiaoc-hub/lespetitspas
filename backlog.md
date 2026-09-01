@@ -290,7 +290,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Encart résumé : allergies, autorisation médicament (badge), parents rattachés (noms/contact).
   - Bloc « messages non traités » avec compteur et aperçu, lien vers la messagerie.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-11**. Route : `/staff/children/[id]`.
   Lien vers la messagerie repoussé à **US-16** (route `/staff/messages` pas encore créée) :
   pour l'instant, aperçu inline des messages non traités.
@@ -309,7 +309,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Filtre « Aujourd'hui » par défaut, sélecteur de date pour les jours précédents.
   - Un badge distinct par type d'événement.
   - Note indiquant la dernière heure de synchronisation (pas de temps réel).
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-12**.
 - **Description technique** : requête `events` filtrée par `child_id` et bornes UTC de la
   journée vécue à Paris (`lib/date.ts`, `parisDayRange`). Sélecteur de date client
@@ -330,10 +330,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     - **Incident** : type (chute/morsure/fièvre/autre) + gravité (léger/modéré/urgent) + note.
   - À l'enregistrement, l'événement apparaît en haut de la timeline.
   - L'auteur (membre de l'équipe connecté) et l'horodatage sont enregistrés.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-13**. Le type **médicament** est traité
-  en **US-15**.
-- **Description technique** : Server Action d'insertion `events` (RLS staff), `author_id = auth.uid()`.
+  en **US-15**. Route : `/staff/children/[id]/nouvel-evenement`.
+- **Description technique** : `event-form.tsx` (`"use client"`) — 5 boutons de type,
+  champs conditionnels, `SegmentedField` (radios en puces) pour les enums, `Input type=time`
+  pour les heures. Server Action `addEvent` (`actions.ts`, `.bind(childId)`) : garde staff,
+  `author_id = profil connecté`, insertion `events` avec seulement les colonnes du type
+  choisi (contrainte CHECK), puis `revalidatePath` + `redirect` vers la fiche.
 
 ### US-15 — Saisie d'un médicament : double validation obligatoire
 
@@ -347,10 +351,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - **Serveur** : la Server Action vérifie que la colonne d'autorisation médicament de
     `children` est `true` pour cet enfant avant tout `INSERT`. Sinon → statut **403**,
     aucune donnée écrite.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-14**. Règle non négociable.
-- **Description technique** : garde-fou serveur dans la Server Action ; test unitaire dédié
-  (**US-30**) et test E2E (**US-31**).
+- **Description technique** : **Client** — si `medication_allowed` est faux, bandeau rouge
+  + bouton désactivé (aucun champ affiché) ; sinon case « Autorisation parentale
+  confirmée » obligatoire, bouton désactivé tant qu'elle n'est pas cochée + texte d'aide.
+  **Serveur** — `addEvent` relit `children.medication_allowed`, refuse si faux (aucun
+  INSERT), puis exige `consent === "on"`. La contrainte CHECK Postgres impose en plus
+  `parental_consent_confirmed = true`. Test unitaire dédié (**US-30**), E2E (**US-31**).
 
 ### US-16 — Messagerie équipe `/staff/messages`
 
