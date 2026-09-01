@@ -273,7 +273,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Carte enfant : avatar (photo si URL renseignée, sinon initiales colorées), prénom,
     section.
   - Clic sur une carte → fiche enfant.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-07**. Route : `/staff`.
   L'indicateur d'activité du jour est sorti dans **US-39** (dépend des événements, US-13).
 - **Description technique** : `app/staff/page.tsx` (Server Component) lit `children`
@@ -330,7 +330,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     - **Incident** : type (chute/morsure/fièvre/autre) + gravité (léger/modéré/urgent) + note.
   - À l'enregistrement, l'événement apparaît en haut de la timeline.
   - L'auteur (membre de l'équipe connecté) et l'horodatage sont enregistrés.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-13**. Le type **médicament** est traité
   en **US-15**. Route : `/staff/children/[id]/nouvel-evenement`.
 - **Description technique** : `event-form.tsx` (`"use client"`) — 5 boutons de type,
@@ -351,7 +351,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - **Serveur** : la Server Action vérifie que la colonne d'autorisation médicament de
     `children` est `true` pour cet enfant avant tout `INSERT`. Sinon → statut **403**,
     aucune donnée écrite.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-14**. Règle non négociable.
 - **Description technique** : **Client** — si `medication_allowed` est faux, bandeau rouge
   + bouton désactivé (aucun champ affiché) ; sinon case « Autorisation parentale
