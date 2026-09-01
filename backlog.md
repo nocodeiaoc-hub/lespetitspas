@@ -169,6 +169,27 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Description technique** : `createBrowserClient` / `createServerClient` de `@supabase/ssr`,
   API cookies `getAll` / `setAll`, `cookies()` de `next/headers` désormais asynchrone.
 
+### US-38 — Configuration de la charte graphique « Nuage » dans le thème
+
+- **User Story** : En tant que développeur, je veux configurer la charte Nuage dans le
+  thème du projet afin que tous les écrans soient cohérents sans réglage écran par écran.
+- **Entité** : thème (`app/globals.css`, `app/layout.tsx`)
+- **Critères d'acceptation** :
+  - Tokens de la charte Nuage (couleurs, polices, rayons, ombres) repris de la maquette
+    Phase 2 et mappés sur les tokens sémantiques ShadCN dans `app/globals.css`.
+  - Polices DM Sans (corps) et Plus Jakarta Sans (titres) chargées via `next/font`.
+  - Layout global en place : `lang="fr"`, fond `canvas`, texte `ink`, police, metadata.
+  - Règle ajoutée dans `AGENTS.md` : tous les écrans en composants ShadCN alignés sur la
+    charte.
+  - `pnpm dev` démarre et affiche les couleurs de la charte ; `pnpm build` au vert.
+  - Aucun écran métier codé à ce stade.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : charte **Nuage** retenue en Phase 2. Aucune dépendance.
+- **Description technique** : `@theme inline` (Tailwind v4) — deux familles de tokens
+  (sémantiques ShadCN + palette Nuage étendue `ink` / `surface` / `canvas` / `*-soft` /
+  `event-*`). Pas de dark mode métier (charte claire uniquement) ; bloc `.dark` fourni mais
+  dormant (pas de sélecteur de thème).
+
 ### US-07 — Écran de connexion `/login`
 
 - **User Story** : En tant qu'utilisateur, je veux me connecter avec mon email et mon mot

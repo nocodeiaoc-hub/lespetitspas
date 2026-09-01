@@ -105,11 +105,24 @@ qu'on ait à le demander** :
   RLS ; sinon passer par le serveur.
 - **La RLS est la source de vérité de la sécurité.** Les gardes côté application (redirection
   d'un parent hors de ses enfants) sont un complément, pas un substitut.
+- **Tous les écrans sont construits en composants ShadCN et alignés sur la charte Nuage.**
+  Règle non négociable : dès qu'un composant ShadCN existe pour un besoin (bouton, champ,
+  carte, dialog, badge, onglets, sélecteur de date…), on l'utilise et on le personnalise
+  via les tokens — jamais de HTML brut restylé à la main, jamais de couleur / rayon /
+  ombre / police en dur. Cette règle s'applique automatiquement à chaque écran, sans avoir
+  à la redemander.
 - **Styles** : classes Tailwind dans le JSX (`className="flex items-center gap-4 p-4"`),
-  jamais de fichier CSS séparé. Réutiliser les tokens de la charte Nuage (`bg-primary`,
-  `text-ink`…) plutôt que des valeurs en dur.
+  jamais de fichier CSS séparé. Toujours les tokens de la charte Nuage (définis dans
+  [`app/globals.css`](app/globals.css)) plutôt que des valeurs en dur :
+  - sémantiques ShadCN : `bg-primary`, `bg-card`, `text-muted-foreground`, `border-border`,
+    `ring-ring`, `bg-destructive`…
+  - charte Nuage : `text-ink`, `text-ink-soft`, `bg-surface`, `bg-canvas`, `border-line`,
+    `bg-primary-soft`, `bg-secondary-strong`, `bg-accent-strong`, `text-success`,
+    `text-warning`, `rounded-pill`, `shadow-soft`, `shadow-lift`, `font-heading`.
+  - couleurs d'événement : `bg-event-repas` / `text-event-repas-foreground`, idem `sieste`,
+    `activite`, `medicament`, `incident`.
 - **Composants ShadCN** : les ajouter avec `pnpm dlx shadcn@latest add <composant>`,
-  puis les personnaliser.
+  puis les personnaliser via les tokens de la charte (ne pas les contourner).
 - **Responsive** : navigation par sidebar sur desktop, bottom navigation sur mobile
   (l'équipe utilise l'app debout sur téléphone/tablette). Cibles tactiles ≥ 44 px.
 - **Timeline** : tri `created_at` décroissant, filtre « Aujourd'hui » par défaut, sélecteur
