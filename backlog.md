@@ -290,9 +290,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Encart résumé : allergies, autorisation médicament (badge), parents rattachés (noms/contact).
   - Bloc « messages non traités » avec compteur et aperçu, lien vers la messagerie.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-11**. Route : `/staff/children/[id]`.
-- **Description technique** : Server Component, jointures `family_members` → `profiles`.
+  Lien vers la messagerie repoussé à **US-16** (route `/staff/messages` pas encore créée) :
+  pour l'instant, aperçu inline des messages non traités.
+- **Description technique** : Server Component `app/staff/children/[id]/page.tsx`, 4 requêtes
+  en parallèle (child, `family_members`→`profiles`, `messages` non traités +
+  `from`→`profiles`, `events` du jour). Bouton « Ajouter un événement » →
+  `/staff/children/[id]/nouvel-evenement` (stub US-14).
 
 ### US-13 — Timeline du jour + sélecteur de date
 
@@ -304,10 +309,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Filtre « Aujourd'hui » par défaut, sélecteur de date pour les jours précédents.
   - Un badge distinct par type d'événement.
   - Note indiquant la dernière heure de synchronisation (pas de temps réel).
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-12**.
-- **Description technique** : requête `events` filtrée par `child_id` et intervalle de date.
-  Rechargement de page pour actualiser (pas de Realtime).
+- **Description technique** : requête `events` filtrée par `child_id` et bornes UTC de la
+  journée vécue à Paris (`lib/date.ts`, `parisDayRange`). Sélecteur de date client
+  (`date-selector.tsx`) qui pousse `?date=YYYY-MM-DD` → le Server Component recharge.
+  `Timeline` : badge coloré par type (`EventBadge` + tokens `event-*`), résumé lisible
+  (`lib/events.ts`), note « dernière synchro », état vide bienveillant. Pas de Realtime.
 
 ### US-14 — Formulaire d'ajout d'événement (repas / sieste / activité / incident)
 

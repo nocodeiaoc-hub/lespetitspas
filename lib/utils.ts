@@ -39,6 +39,25 @@ export function avatarColor(seed: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
+/** Durée d'une sieste en minutes (gère défensivement le passage de minuit). */
+export function napDurationMinutes(start: string, end: string): number {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  let minutes = eh * 60 + em - (sh * 60 + sm);
+  if (minutes < 0) minutes += 24 * 60;
+  return minutes;
+}
+
+/** Durée d'une sieste formatée : « 45 min », « 1 h », « 1 h 20 ». */
+export function napDurationLabel(start: string, end: string): string {
+  const total = napDurationMinutes(start, end);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${String(m).padStart(2, "0")}`;
+}
+
 /** Âge lisible en français à partir d'une date ISO (yyyy-mm-dd). */
 export function ageLabel(birthDate: string): string {
   const b = new Date(birthDate);
