@@ -199,10 +199,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Champs email + mot de passe, message d'erreur **explicite** en cas d'échec.
   - Redirection par rôle : `staff` → `/staff`, `parent` → `/parent`.
   - Un utilisateur déjà connecté qui ouvre `/login` est redirigé vers son espace.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-05**, **US-37**. Route : `/login`.
-- **Description technique** : `@supabase/ssr`, client Supabase côté navigateur pour le
-  `signInWithPassword`, lecture du rôle dans `profiles` côté serveur pour la redirection.
+- **Description technique** : `@supabase/ssr`. Connexion via **Server Action** `signIn`
+  (`app/actions.ts`) sur le client serveur — c'est elle qui pose les cookies d'auth —,
+  puis lecture du rôle dans `profiles` (`lib/auth.ts`, `getProfile` mémoïsé) et
+  `redirect()` par rôle. Formulaire client `useActionState` (`app/login/login-form.tsx`),
+  message d'erreur générique « Email ou mot de passe incorrect. ». `/login` et `/`
+  redirigent l'utilisateur déjà connecté vers son espace.
 
 ### US-08 — Déconnexion & persistance de session
 
@@ -213,10 +217,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Bouton de déconnexion accessible depuis toutes les pages authentifiées.
   - La session persiste après rechargement de la page.
   - Après déconnexion, tout accès à une route protégée renvoie vers `/login`.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-07**, **US-37**.
-- **Description technique** : middleware Next.js de rafraîchissement de session
-  (`@supabase/ssr`), cookies httpOnly.
+- **Description technique** : `proxy.ts` (ex-`middleware`, renommé Next.js 16) +
+  `lib/supabase/middleware.ts` (`updateSession`) rafraîchit la session à chaque
+  navigation et réécrit les cookies → persistance après rechargement + garde optimiste
+  (visiteur → `/login`). Bouton de déconnexion (`components/logout-button.tsx`) dans la
+  coquille `AppShell`, présent sur toutes les pages `/staff` et `/parent` ; Server Action
+  `signOut` → `supabase.auth.signOut()` → `redirect('/login')`.
 
 ### US-09 — Réinitialisation du mot de passe
 
