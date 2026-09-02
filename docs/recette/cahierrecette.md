@@ -80,7 +80,8 @@ Six parcours critiques sont rejoués automatiquement à chaque exécution de
 | `tests/parent-isolation.spec.ts` | SC17 (URL forgée → redirection `/parent`) |
 | `tests/parent-messages.spec.ts` | SC19 + SC12 (message parent → visible côté équipe) |
 
-Suite exécutée le 2026-09-02 : **tous les tests au vert**.
+Suite exécutée le 2026-09-02 : **tous les tests au vert**, en local **et en CI**
+(GitHub Actions, à chaque push sur `staging`/`main` et PR vers `main` — US-33).
 
 ---
 

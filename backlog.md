@@ -705,16 +705,17 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Workflow `.github/workflows/playwright.yml` créé par `pnpm create playwright`.
   - Les tests tournent sur push et sur PR.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-31**, **US-32**. Node ≥ 22.13 (pnpm 11).
-  **Action requise (humain)** : créer les secrets GitHub `NEXT_PUBLIC_SUPABASE_URL`,
+  7 secrets GitHub créés (Repository secrets) : `NEXT_PUBLIC_SUPABASE_URL`,
   `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `E2E_STAFF_EMAIL`,
-  `E2E_STAFF_PASSWORD`, `E2E_PARENT1_EMAIL`, `E2E_PARENT1_PASSWORD` — sans eux le job E2E
-  échoue (le job `checks` passe sans secret).
-- **Description technique** : workflow `CI` retravaillé — 2 jobs. `checks` : `pnpm lint` +
-  `pnpm test` (Vitest) + `pnpm build`. `e2e` : `playwright install chromium` +
-  `playwright test --project=chromium`, env injecté depuis les secrets. Déclencheurs :
-  push sur `staging`/`main`, PR vers `main`. Rapport Playwright en artefact.
+  `E2E_STAFF_PASSWORD`, `E2E_PARENT1_EMAIL`, `E2E_PARENT1_PASSWORD`.
+- **Description technique** : workflow `CI` — 2 jobs. `checks` (aucun secret) : `pnpm lint` +
+  `pnpm test` (Vitest) + `pnpm build`. `e2e` : step de garde qui échoue tôt si un secret
+  manque, `playwright install chromium`, `pnpm build`, serveur de **prod** (`pnpm start`)
+  lancé par le webServer Playwright, `playwright test --project=chromium`. Rapport en
+  artefact. Déclencheurs : push sur `staging`/`main`, PR vers `main`. Les deux jobs verts
+  sur `staging` le 2026-09-02.
 
 ### US-34 — Recette & cas limites
 
