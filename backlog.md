@@ -668,11 +668,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Statut** : En cours
 - **Contraintes / Dépendances** : dépend des Phases 4 et 5. `playwright.config.ts` :
   `baseURL = http://localhost:3000`, `webServer` lance `pnpm dev`.
-- **Description technique** : `pnpm create playwright` fait. `playwright.config.ts`
-  configuré (`baseURL`, `webServer` : lance `pnpm dev`, réutilise le serveur en local,
-  neuf sur CI). `tests/smoke.spec.ts` valide la config (redirection `/` → `/login`).
-  Reste : écrire les 3 parcours équipe dans `tests/` (dépendra de comptes de test dédiés
-  E2E ou d'un mécanisme d'auth stockée `playwright/.auth/`).
+- **Description technique** : `playwright.config.ts` configuré (`baseURL`, `webServer`,
+  `dotenv` charge `.env.local`). `tests/helpers.ts` : `login(page, who)` via `/login`,
+  comptes lus dans `E2E_STAFF_*` / `E2E_PARENT1_*` (valeurs dans `JOURNAL.md`).
+  `tests/auth.spec.ts` (login staff) + `tests/staff-events.spec.ts` (création repas,
+  blocage médicament). Sélecteurs par rôles/labels/textes. Reste : lancer la suite avec
+  les comptes renseignés.
 
 ### US-32 — Tests E2E Playwright : isolation parent
 
@@ -684,9 +685,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Parent 1 tente d'accéder à la fiche d'un enfant qui n'est pas le sien → erreur ou
     redirection vers `/parent`.
   - Envoi d'un message par parent 1 → réception côté équipe dans `/staff/messages`.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-21**, **US-22**.
-- **Description technique** : comptes de test parent 1 / parent 2 / staff.
+- **Description technique** : `tests/auth.spec.ts` (parent1 ne voit que Ana Maria + Sarah),
+  `tests/parent-isolation.spec.ts` (URL forgée vers Ilyès → redirection `/parent`, id
+  récupéré via une session staff), `tests/parent-messages.spec.ts` (parent1 envoie →
+  staff retrouve dans `/staff/messages` via un marqueur unique). Reste : lancer la suite.
 
 ### US-33 — Intégration continue Playwright
 
