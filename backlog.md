@@ -665,10 +665,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Connexion staff → arrivée sur `/staff` avec la liste des enfants visible.
   - Création d'un événement de type repas → apparition dans la timeline.
   - Blocage médicament : bouton d'enregistrement désactivé pour un enfant sans autorisation.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend des Phases 4 et 5. `playwright.config.ts` :
   `baseURL = http://localhost:3000`, `webServer` lance `pnpm dev`.
-- **Description technique** : `pnpm create playwright`, tests dans `e2e/` ou `tests/`.
+- **Description technique** : `pnpm create playwright` fait. `playwright.config.ts`
+  configuré (`baseURL`, `webServer` : lance `pnpm dev`, réutilise le serveur en local,
+  neuf sur CI). `tests/smoke.spec.ts` valide la config (redirection `/` → `/login`).
+  Reste : écrire les 3 parcours équipe dans `tests/` (dépendra de comptes de test dédiés
+  E2E ou d'un mécanisme d'auth stockée `playwright/.auth/`).
 
 ### US-32 — Tests E2E Playwright : isolation parent
 
