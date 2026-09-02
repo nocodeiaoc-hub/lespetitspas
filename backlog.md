@@ -598,7 +598,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Description technique** : appliqué dans les deux flux — invitation (`sendParentInvitation`
   renvoie `{ ok, message }`, jamais de throw) et notification (`notifyStaff` en try/catch,
   le message parent est déjà enregistré). Les helpers `lib/email/*` renvoient
-  `{ ok, error }` et journalisent le détail (`console.error`).
+  `{ ok, error }` et journalisent le détail (`console.error`). Vérifié en réel : envoi
+  d'un message parent → message bien enregistré et parcours non interrompu malgré le
+  refus Resend 403 (destinataire non autorisé en mode test), erreur journalisée.
+- **Dev sans domaine vérifié** : `RESEND_TEST_RECIPIENT` (dans `.env.local`) redirige tous
+  les emails vers l'adresse du compte Resend, avec un bandeau « en prod, irait à … ».
+  Vide en production (US-35 : domaine vérifié).
 
 ### US-28 — Bonus : météo du jour + conseil d'habillement
 

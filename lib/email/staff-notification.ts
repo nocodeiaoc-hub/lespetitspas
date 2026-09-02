@@ -1,5 +1,10 @@
 import "server-only";
-import { Resend } from "resend";
+import {
+  resendClient,
+  resendFrom,
+  resolveRecipients,
+  testRedirectBanner,
+} from "./shared";
 
 type NotificationParams = {
   to: string[];
@@ -21,12 +26,14 @@ export function notificationSubject(
 export function notificationHtml({
   parentFirstName,
   childFirstName,
-}: Omit<NotificationParams, "to">): string {
+  bannerHtml = "",
+}: Omit<NotificationParams, "to"> & { bannerHtml?: string }): string {
   const link = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/staff/messages`;
   return `<!doctype html>
 <html lang="fr">
   <body style="margin:0;background:#f0f4f8;font-family:'DM Sans',Arial,sans-serif;color:#1a237e;">
     <div style="max-width:520px;margin:0 auto;padding:32px 20px;">
+      ${bannerHtml}
       <div style="text-align:center;font-size:28px;">👣</div>
       <h1 style="font-size:20px;text-align:center;margin:8px 0 24px;color:#1a237e;">
         Les Petits Pas
@@ -63,18 +70,20 @@ export async function sendStaffMessageNotification({
   parentFirstName,
   childFirstName,
 }: NotificationParams): Promise<{ ok: boolean; error?: string }> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
-
-  if (!apiKey) return { ok: false, error: "RESEND_API_KEY manquante." };
+  const resend = resendClient();
+  if (!resend) return { ok: false, error: "RESEND_API_KEY manquante." };
   if (to.length === 0) return { ok: false, error: "Aucun destinataire staff." };
 
-  const resend = new Resend(apiKey);
+  const { to: recipients, redirectedFrom } = resolveRecipients(to);
   const { error } = await resend.emails.send({
-    from,
-    to,
+    from: resendFrom(),
+    to: recipients,
     subject: notificationSubject(parentFirstName, childFirstName),
-    html: notificationHtml({ parentFirstName, childFirstName }),
+    html: notificationHtml({
+      parentFirstName,
+      childFirstName,
+      bannerHtml: testRedirectBanner(redirectedFrom),
+    }),
   });
 
   if (error) {

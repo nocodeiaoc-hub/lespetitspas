@@ -1,5 +1,10 @@
 import "server-only";
-import { Resend } from "resend";
+import {
+  resendClient,
+  resendFrom,
+  resolveRecipients,
+  testRedirectBanner,
+} from "./shared";
 
 type InvitationParams = {
   to: string;
@@ -16,11 +21,13 @@ export function invitationSubject(childFirstName: string): string {
 export function invitationHtml({
   childFirstName,
   actionLink,
-}: Omit<InvitationParams, "to">): string {
+  bannerHtml = "",
+}: Omit<InvitationParams, "to"> & { bannerHtml?: string }): string {
   return `<!doctype html>
 <html lang="fr">
   <body style="margin:0;background:#f0f4f8;font-family:'DM Sans',Arial,sans-serif;color:#1a237e;">
     <div style="max-width:520px;margin:0 auto;padding:32px 20px;">
+      ${bannerHtml}
       <div style="text-align:center;font-size:28px;">👣</div>
       <h1 style="font-size:20px;text-align:center;margin:8px 0 24px;color:#1a237e;">
         Les Petits Pas
@@ -66,19 +73,21 @@ export async function sendParentInvitationEmail({
   childFirstName,
   actionLink,
 }: InvitationParams): Promise<{ ok: boolean; error?: string }> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
-
-  if (!apiKey) {
+  const resend = resendClient();
+  if (!resend) {
     return { ok: false, error: "RESEND_API_KEY manquante dans .env.local." };
   }
 
-  const resend = new Resend(apiKey);
+  const { to: recipients, redirectedFrom } = resolveRecipients(to);
   const { error } = await resend.emails.send({
-    from,
-    to,
+    from: resendFrom(),
+    to: recipients,
     subject: invitationSubject(childFirstName),
-    html: invitationHtml({ childFirstName, actionLink }),
+    html: invitationHtml({
+      childFirstName,
+      actionLink,
+      bannerHtml: testRedirectBanner(redirectedFrom),
+    }),
   });
 
   if (error) {
