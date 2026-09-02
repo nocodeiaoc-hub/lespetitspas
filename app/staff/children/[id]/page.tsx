@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MessageSquare, Pill, Plus } from "lucide-react";
-import type { Child, DayEvent } from "@/lib/types";
+import type { Child } from "@/lib/types";
 import { ageLabel } from "@/lib/utils";
 import {
   humanDay,
@@ -12,9 +12,9 @@ import {
 } from "@/lib/date";
 import { createServerClient } from "@/lib/supabase/server";
 import { ChildAvatar } from "@/components/child-avatar";
+import { DateSelector } from "@/components/date-selector";
+import { Timeline, type TimelineEvent } from "@/components/timeline";
 import { Button } from "@/components/ui/button";
-import { DateSelector } from "./date-selector";
-import { Timeline } from "./timeline";
 
 type ParentRow = {
   parent: { id: string; first_name: string; last_name: string } | null;
@@ -60,7 +60,7 @@ export default async function StaffChildDetailPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("events")
-      .select("*")
+      .select("*, author:profiles(first_name)")
       .eq("child_id", id)
       .gte("created_at", range.gte)
       .lt("created_at", range.lt)
@@ -73,7 +73,7 @@ export default async function StaffChildDetailPage({
     .map((r) => r.parent)
     .filter((p): p is NonNullable<ParentRow["parent"]> => p !== null);
   const messages = (messagesRes.data ?? []) as unknown as MessageRow[];
-  const events = (eventsRes.data ?? []) as DayEvent[];
+  const events = (eventsRes.data ?? []) as unknown as TimelineEvent[];
 
   return (
     <div className="flex flex-col gap-4">
@@ -205,6 +205,7 @@ export default async function StaffChildDetailPage({
           events={events}
           dayLabel={humanDay(date)}
           syncedAt={timeInParis(new Date().toISOString())}
+          emptyHint="Utilisez « Ajouter un événement » pour renseigner un repas, une sieste, une activité, un médicament ou un incident."
         />
       </section>
     </div>

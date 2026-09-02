@@ -6,8 +6,9 @@ import { humanDay, shiftDay, todayInParis } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 
 /**
- * Sélecteur de date de la timeline. Change l'URL (`?date=YYYY-MM-DD`) →
+ * Sélecteur de date d'une timeline. Change l'URL (`?date=YYYY-MM-DD`) →
  * le Server Component recharge les événements du jour choisi.
+ * Route-agnostique : fonctionne pour /staff/children/[id] et /parent/children/[id].
  */
 export function DateSelector({ date }: { date: string }) {
   const router = useRouter();

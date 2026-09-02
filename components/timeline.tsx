@@ -4,14 +4,20 @@ import { EVENT_LABELS, eventSummary } from "@/lib/events";
 import { timeInParis } from "@/lib/date";
 import { EventBadge } from "@/components/event-badge";
 
+export type TimelineEvent = DayEvent & {
+  author?: { first_name: string } | null;
+};
+
 export function Timeline({
   events,
   dayLabel,
   syncedAt,
+  emptyHint = "Aucun événement enregistré pour cette date.",
 }: {
-  events: DayEvent[];
+  events: TimelineEvent[];
   dayLabel: string;
   syncedAt: string;
+  emptyHint?: string;
 }) {
   if (events.length === 0) {
     return (
@@ -22,10 +28,7 @@ export function Timeline({
         <p className="font-heading font-bold text-ink">
           Aucun événement {dayLabel.toLowerCase()}
         </p>
-        <p className="max-w-xs text-sm text-ink-soft">
-          Utilisez « Ajouter un événement » pour renseigner un repas, une sieste,
-          une activité, un médicament ou un incident.
-        </p>
+        <p className="max-w-xs text-sm text-ink-soft">{emptyHint}</p>
       </div>
     );
   }
@@ -49,8 +52,11 @@ export function Timeline({
                 </span>
               </div>
               <p className="text-sm text-ink-soft">{eventSummary(e)}</p>
-              {e.note && (
-                <p className="mt-1 text-sm text-ink">« {e.note} »</p>
+              {e.note && <p className="mt-1 text-sm text-ink">« {e.note} »</p>}
+              {e.author?.first_name && (
+                <p className="mt-1 text-xs text-ink-soft">
+                  Saisi par {e.author.first_name}
+                </p>
               )}
             </div>
           </li>

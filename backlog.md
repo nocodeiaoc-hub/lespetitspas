@@ -462,9 +462,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Timeline en lecture seule (le parent ne peut pas ajouter d'événement).
   - Affiche le prénom du membre de l'équipe qui a saisi chaque événement.
   - Sélecteur de date pour les jours précédents.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-19**, **US-21**. Route : `/parent/children/[id]`.
-- **Description technique** : jointure `events.author_id` → `profiles.first_name`.
+- **Description technique** : `app/parent/children/[id]/page.tsx` réutilise les composants
+  partagés `Timeline` et `DateSelector` (extraits de l'espace équipe vers `components/`).
+  Jointure `events` → `author:profiles(first_name)` ; nécessite la policy
+  `supabase/06_profiles_staff_readable.sql` (parent peut lire les profils `staff`).
+  Timeline en lecture seule (pas de bouton d'ajout). `loading.tsx` / `error.tsx` hérités
+  du segment `/parent`.
 
 ### US-21 — Contrôle d'accès serveur parent → enfant
 
@@ -475,11 +480,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Une vérification **côté serveur** confirme que l'enfant consulté est rattaché au parent
     connecté.
   - Sinon → redirection vers `/parent` (ou erreur explicite).
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-04**. Bloquant pour **US-20**. Vérifié par
   le test E2E **US-32**.
-- **Description technique** : garde en Server Component / `layout.tsx` de `/parent/children/[id]`,
-  en complément de la RLS.
+- **Description technique** : dans `app/parent/children/[id]/page.tsx`, `select` sur
+  `children` filtré par la RLS ; si `single()` ne renvoie rien (enfant non rattaché ou
+  inexistant) → `redirect("/parent")`. Complément de la RLS, pas un substitut.
 
 ### US-22 — Envoi d'un message à l'équipe `/parent/messages/new`
 

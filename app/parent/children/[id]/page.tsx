@@ -1,26 +1,53 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import type { Child } from "@/lib/types";
 import { ageLabel } from "@/lib/utils";
+import {
+  humanDay,
+  isValidDate,
+  parisDayRange,
+  timeInParis,
+  todayInParis,
+} from "@/lib/date";
 import { createServerClient } from "@/lib/supabase/server";
 import { ChildAvatar } from "@/components/child-avatar";
+import { DateSelector } from "@/components/date-selector";
+import { Timeline, type TimelineEvent } from "@/components/timeline";
 
-export default async function ParentChildPage({
+export default async function ParentChildTimelinePage({
   params,
+  searchParams,
 }: PageProps<"/parent/children/[id]">) {
   const { id } = await params;
-  const supabase = await createServerClient();
+  const sp = await searchParams;
+  const today = todayInParis();
+  const rawDate = typeof sp.date === "string" ? sp.date : today;
+  const date = isValidDate(rawDate) && rawDate <= today ? rawDate : today;
 
-  // La RLS ne renvoie l'enfant que s'il est rattaché au parent connecté.
-  const { data } = await supabase
+  const supabase = await createServerClient();
+  const range = parisDayRange(date);
+
+  // Garde serveur (US-21) : la RLS ne renvoie l'enfant que s'il est rattaché
+  // au parent connecté. Sinon → retour à l'accueil parent.
+  const { data: childData } = await supabase
     .from("children")
-    .select("id, first_name, last_name, section, birth_date, allergies, medication_allowed, photo_url")
+    .select("id, first_name, last_name, section, birth_date, photo_url")
     .eq("id", id)
     .single();
 
-  if (!data) notFound();
-  const child = data as Child;
+  if (!childData) redirect("/parent");
+  const child = childData as unknown as Child;
+
+  const { data: eventsData } = await supabase
+    .from("events")
+    .select("*, author:profiles(first_name)")
+    .eq("child_id", id)
+    .gte("created_at", range.gte)
+    .lt("created_at", range.lt)
+    .order("created_at", { ascending: false });
+
+  const events = (eventsData ?? []) as unknown as TimelineEvent[];
 
   return (
     <div className="flex flex-col gap-4">
@@ -40,8 +67,8 @@ export default async function ParentChildPage({
           seed={child.id}
           className="size-16 text-lg"
         />
-        <div>
-          <h2 className="text-xl">
+        <div className="min-w-0">
+          <h2 className="truncate text-xl">
             {child.first_name} {child.last_name}
           </h2>
           <p className="text-sm text-ink-soft">
@@ -50,9 +77,14 @@ export default async function ParentChildPage({
         </div>
       </div>
 
-      <p className="rounded-lg bg-primary-soft px-4 py-3 text-sm text-primary-strong">
-        La timeline de la journée arrive avec l&apos;US-20.
-      </p>
+      <DateSelector date={date} />
+
+      <Timeline
+        events={events}
+        dayLabel={humanDay(date)}
+        syncedAt={timeInParis(new Date().toISOString())}
+        emptyHint="L'équipe n'a pas encore saisi d'événement pour cette journée."
+      />
     </div>
   );
 }
