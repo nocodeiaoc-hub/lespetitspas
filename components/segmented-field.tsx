@@ -14,11 +14,15 @@ export function SegmentedField({
   legend,
   options,
   required,
+  defaultValue,
+  onChange,
 }: {
   name: string;
   legend: string;
   options: Option[];
   required?: boolean;
+  defaultValue?: string;
+  onChange?: (value: string) => void;
 }) {
   const id = useId();
 
@@ -36,6 +40,8 @@ export function SegmentedField({
               name={name}
               value={opt.value}
               required={required}
+              defaultChecked={defaultValue === opt.value}
+              onChange={() => onChange?.(opt.value)}
               className="sr-only"
               aria-labelledby={`${id}-${opt.value}`}
             />

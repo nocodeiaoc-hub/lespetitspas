@@ -496,11 +496,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Choix de l'enfant concerné.
   - Texte libre limité à **500 caractères** avec **compteur** visible.
   - Bouton d'envoi désactivé si vide ou au-delà de 500 caractères.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-04**. Route : `/parent/messages/new`.
   Déclenche l'email de notification **US-26**.
-- **Description technique** : Server Action `INSERT messages` (RLS : INSERT parent,
-  `from_profile_id = auth.uid()`, statut `nouveau`).
+- **Description technique** : `message-form.tsx` (`"use client"`) — choix de l'enfant
+  (`SegmentedField`, ou masqué si un seul enfant), `Textarea` + compteur `len/500` qui
+  passe en rouge au-delà, bouton désactivé si vide / trop long / en cours. Server Action
+  `sendMessage` (`actions.ts`) : garde parent, revérifie 1–500, `INSERT messages`
+  (`from_profile_id = profil`, statut `nouveau`), `redirect('/parent/messages?envoye=1')`.
 
 ### US-23 — Historique des messages envoyés (parent)
 
@@ -510,9 +513,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Liste des messages envoyés par le parent, du plus récent au plus ancien.
   - Chaque message rattaché à un enfant, avec date/heure et statut.
-- **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-22**.
-- **Description technique** : lecture `messages` filtrée par `from_profile_id` (RLS).
+- **Statut** : En cours
+- **Contraintes / Dépendances** : dépend de **US-22**. Route : `/parent/messages`.
+- **Description technique** : `app/parent/messages/page.tsx` — lecture `messages` filtrée
+  `from_profile_id = profil`, jointe à `children.first_name`, triée `created_at desc`.
+  Badge de statut orienté parent (Envoyé / Lu par l'équipe / Traité), bandeau de
+  confirmation si `?envoye=1`, bouton « Écrire ». Nav parent : Mes enfants / Messages.
 
 ### US-24 — États vides parent
 
@@ -523,9 +529,11 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Parent sans enfant rattaché → message invitant à contacter la crèche.
   - Aucun événement pour la date consultée → message bienveillant.
   - Aucun message envoyé → « Vous n'avez pas encore envoyé de message à l'équipe ».
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : transverse aux US-19 à US-23.
-- **Description technique** : composant `EmptyState` partagé avec la Phase 5.
+- **Description technique** : les trois cas sont couverts — `/parent` (aucun enfant
+  rattaché → contacter la crèche), `Timeline` (`emptyHint` par date), `/parent/messages`
+  (aucun message envoyé). Même style d'état vide que la Phase 5.
 
 ---
 

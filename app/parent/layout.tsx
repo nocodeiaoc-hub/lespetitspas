@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app-shell";
 
 const NAV = [
   { href: "/parent", label: "Mes enfants" },
-  { href: "/parent/messages/new", label: "Écrire à l'équipe" },
+  { href: "/parent/messages", label: "Messages" },
 ];
 
 export default async function ParentLayout({ children }: LayoutProps<"/parent">) {
