@@ -136,6 +136,22 @@ rencontré, même mineur. Tenu vivant **sans qu'on ait à le demander** :
 
 L'humain valide la sévérité et la priorisation.
 
+## PV de recette — règle de mise à jour (IMPORTANT)
+
+Le fichier [`docs/recette/pvrecette.md`](docs/recette/pvrecette.md) est le procès-verbal
+de recette (décision Go / Go conditionnel / NoGo). L'IA le **prépare et le tient à jour**,
+**sans trancher** :
+
+1. Générer / rafraîchir le PV en **synthétisant** `cahierrecette.md` et `bugs.md` :
+   version (date, environnement, testeur), **fonctionnalités couvertes** et leur statut,
+   **bugs résiduels** (non corrigés + justification), **risques connus** en production.
+2. **Laisser vides** la ligne **Décision** et sa **Justification** — c'est l'humain qui
+   tranche et signe. Ne jamais y écrire une décision.
+3. Rafraîchir le PV à chaque évolution du cahier de recette ou du tableau de bugs
+   (nouveau scénario `KO`, bug ouvert/corrigé, risque levé).
+4. Après mise à jour, proposer :
+   `git add docs/recette/ && git commit -m "docs: maj PV de recette"`.
+
 ## Conventions & patterns
 
 - **Langue de l'interface : français.** Textes utilisateur, libellés, messages d'erreur.
