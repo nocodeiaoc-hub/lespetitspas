@@ -27,6 +27,8 @@ const eslintConfig = defineConfig([
     // Fichiers de test : runner (vitest) mis en place en Phase 8 (US-30).
     "**/*.test.ts",
     "**/*.test.tsx",
+    // Tests E2E Playwright : compilés par Playwright, hors périmètre du lint Next.
+    "tests/**",
   ]),
 ]);
 
