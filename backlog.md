@@ -614,11 +614,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Bloc météo affiché sur la timeline parent (et, au choix, sur l'espace équipe).
   - Résumé météo + une phrase de conseil d'habillement.
   - État de chargement et état d'erreur (« Météo indisponible pour le moment »).
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : fonctionnalité bonus retenue = **météo + conseil
   d'habillement**. Dépend de **US-20**.
-- **Description technique** : appel d'une API météo côté serveur (route handler), conseil
-  dérivé de la condition + température.
+- **Description technique** : API **Open-Meteo** (gratuite, sans clé) appelée par le route
+  handler `app/api/weather/route.ts`. Logique pure `lib/weather.ts` (`weatherKind`,
+  `describeWeather`, `clothingAdvice` dérivé de la température + code WMO). Composant client
+  `components/weather-block.tsx` (`fetch('/api/weather')`, 3 états) affiché en tête de la
+  timeline parent, uniquement pour la date du jour.
 
 ### US-29 — Bonus : stockage & documentation
 
@@ -629,10 +632,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Écran, stockage en base et composant associés livrés.
   - Documentation dans `docs/featurebonus.md`.
   - Indisponibilité de l'API externe couverte par un scénario de test.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-28**.
-- **Description technique** : table de cache journalier (évite de rappeler l'API à chaque
-  visite), RLS lecture pour tous les utilisateurs connectés.
+- **Description technique** : table `weather_cache` (`supabase/07_weather_cache.sql`),
+  1 ligne par `day`, RLS lecture `authenticated`, écriture réservée à `service_role` (le
+  route handler fait l'`upsert`). Doc complète dans `docs/featurebonus.md` (archi +
+  3 scénarios de test, dont « API indisponible → message + 503, aucun crash »).
+  `lib/weather.test.ts` écrit (exécuté quand le runner est en place, US-30).
 
 ---
 

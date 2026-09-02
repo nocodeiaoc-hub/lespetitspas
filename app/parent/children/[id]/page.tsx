@@ -14,6 +14,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { ChildAvatar } from "@/components/child-avatar";
 import { DateSelector } from "@/components/date-selector";
 import { Timeline, type TimelineEvent } from "@/components/timeline";
+import { WeatherBlock } from "@/components/weather-block";
 
 export default async function ParentChildTimelinePage({
   params,
@@ -76,6 +77,8 @@ export default async function ParentChildTimelinePage({
           </p>
         </div>
       </div>
+
+      {date === todayInParis() && <WeatherBlock />}
 
       <DateSelector date={date} />
 

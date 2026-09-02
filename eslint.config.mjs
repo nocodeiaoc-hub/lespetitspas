@@ -24,6 +24,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Projet autonome (maquette Phase 2), a son propre lint/build.
     "prototype/**",
+    // Fichiers de test : runner (vitest) mis en place en Phase 8 (US-30).
+    "**/*.test.ts",
+    "**/*.test.tsx",
   ]),
 ]);
 
