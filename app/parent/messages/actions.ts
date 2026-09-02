@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getProfile } from "@/lib/auth";
+import { sendStaffMessageNotification } from "@/lib/email/staff-notification";
 
 export type SendMessageState = { error: string | null };
 
@@ -56,6 +58,38 @@ export async function sendMessage(
     return { error: "Envoi impossible pour le moment. Réessayez." };
   }
 
+  // Notification email à l'équipe (US-26). Non bloquant : le message est déjà
+  // enregistré, un échec d'email ne doit pas casser le parcours parent.
+  await notifyStaff(childId, profile.first_name);
+
   revalidatePath("/parent/messages");
   redirect("/parent/messages?envoye=1");
+}
+
+async function notifyStaff(childId: string, parentFirstName: string) {
+  try {
+    const admin = createAdminClient();
+
+    const [{ data: child }, { data: staff }] = await Promise.all([
+      admin.from("children").select("first_name").eq("id", childId).single(),
+      admin.from("profiles").select("id").eq("role", "staff"),
+    ]);
+
+    if (!child || !staff?.length) return;
+
+    const emails: string[] = [];
+    for (const s of staff as { id: string }[]) {
+      const { data } = await admin.auth.admin.getUserById(s.id);
+      if (data.user?.email) emails.push(data.user.email);
+    }
+
+    const res = await sendStaffMessageNotification({
+      to: emails,
+      parentFirstName: parentFirstName || "Un parent",
+      childFirstName: child.first_name,
+    });
+    if (!res.ok) console.error("staff notification skipped:", res.error);
+  } catch (e) {
+    console.error("staff notification failed", e);
+  }
 }

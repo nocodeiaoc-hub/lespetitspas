@@ -571,12 +571,18 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Entité** : `messages`, `profiles`
 - **Critères d'acceptation** :
   - Envoi via Resend à chaque `INSERT` dans `messages`, à tous les profils `staff`.
-  - Objet « Nouveau message de [prénom parent] pour [prénom enfant] », extrait + lien vers
+  - Objet « Nouveau message de [prénom parent] pour [prénom enfant] », lien vers
     `/staff/messages`.
   - Aucune donnée médicale ou sensible dans le corps de l'email.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-22**.
-- **Description technique** : envoi déclenché dans la Server Action d'insertion du message.
+- **Description technique** : `sendMessage` (`app/parent/messages/actions.ts`) appelle
+  `notifyStaff()` après l'`INSERT` réussi — **non bloquant** (try/catch, le message est
+  déjà enregistré). Client admin pour lister les profils `staff` puis résoudre leurs
+  emails (`admin.auth.admin.getUserById`). Email via `lib/email/staff-notification.ts`.
+  **Décision RGPD** : contrairement au libellé « extrait », le corps NE contient PAS le
+  texte du message (aside « Point RGPD important » : l'email dit seulement qu'il y a un
+  message, le contenu reste dans l'application). Objet + prénoms + bouton uniquement.
 
 ### US-27 — Gestion des statuts d'envoi Resend
 
@@ -587,9 +593,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Succès et erreurs d'envoi gérés sans interrompre le parcours utilisateur.
   - Une erreur 403 (destinataire non autorisé avec l'adresse de test) est loguée, pas
     remontée comme un plantage.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-25**, **US-26**.
-- **Description technique** : `try/catch` autour des appels Resend, retour d'état non bloquant.
+- **Description technique** : appliqué dans les deux flux — invitation (`sendParentInvitation`
+  renvoie `{ ok, message }`, jamais de throw) et notification (`notifyStaff` en try/catch,
+  le message parent est déjà enregistré). Les helpers `lib/email/*` renvoient
+  `{ ok, error }` et journalisent le détail (`console.error`).
 
 ### US-28 — Bonus : météo du jour + conseil d'habillement
 
