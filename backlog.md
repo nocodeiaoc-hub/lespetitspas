@@ -614,7 +614,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Bloc météo affiché sur la timeline parent (et, au choix, sur l'espace équipe).
   - Résumé météo + une phrase de conseil d'habillement.
   - État de chargement et état d'erreur (« Météo indisponible pour le moment »).
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : fonctionnalité bonus retenue = **météo + conseil
   d'habillement**. Dépend de **US-20**.
 - **Description technique** : API **Open-Meteo** (gratuite, sans clé) appelée par le route
@@ -632,7 +632,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Écran, stockage en base et composant associés livrés.
   - Documentation dans `docs/featurebonus.md`.
   - Indisponibilité de l'API externe couverte par un scénario de test.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-28**.
 - **Description technique** : table `weather_cache` (`supabase/07_weather_cache.sql`),
   1 ligne par `day`, RLS lecture `authenticated`, écriture réservée à `service_role` (le
