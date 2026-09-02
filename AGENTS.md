@@ -115,6 +115,26 @@ ait à le demander** :
 
 L'humain valide le contenu et garde la main sur le choix des scénarios.
 
+## Tableau de bugs — règle de mise à jour (IMPORTANT)
+
+Le fichier [`docs/recette/bugs.md`](docs/recette/bugs.md) recense **tout** problème
+rencontré, même mineur. Tenu vivant **sans qu'on ait à le demander** :
+
+1. **Dès qu'un bug est détecté** : créer l'entrée (`BUGxxx`, IDs séquentiels jamais
+   réattribués) — description en une phrase, page/route concernée, comportement
+   attendu, comportement observé, sévérité proposée (`Bloquant` / `Majeur` / `Mineur`),
+   statut `Nouveau`.
+2. **Bug `Bloquant` ou `Majeur`** : créer une branche `fix/BUGxxx-…` depuis `staging`,
+   corriger, ajouter/adapter un test, vérifier (`pnpm build`, `pnpm lint`, scénario de
+   recette concerné), fusionner.
+3. **Dès qu'un bug est corrigé** : passer le statut à `Corrigé` avec l'**ID du commit
+   ou de la PR**, puis rejouer et mettre à jour le scénario de recette impacté.
+4. Tenir à jour le **tableau de synthèse** en tête de fichier.
+5. Après mise à jour, proposer :
+   `git add docs/recette/ && git commit -m "docs: maj tableau de bugs"`.
+
+L'humain valide la sévérité et la priorisation.
+
 ## Conventions & patterns
 
 - **Langue de l'interface : français.** Textes utilisateur, libellés, messages d'erreur.

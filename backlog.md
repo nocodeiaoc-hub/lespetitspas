@@ -715,6 +715,9 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   Cas d'erreur couverts : SC03 (identifiants), SC17/SC18 (accès non autorisé), SC21
   (aucune donnée), SC26 (API bonus indisponible). Captures SC17/SC26 dans `docs/recette/`.
   Le cahier reste vivant (mis à jour à chaque changement de comportement).
+  **Tableau de bugs** : [`docs/recette/bugs.md`](docs/recette/bugs.md) — BUG001–BUG003
+  (rencontrés en dev, corrigés avant validation des US), aucun bug en recette formelle.
+  Règle de tenue ajoutée dans `AGENTS.md`.
 
 ### US-35 — Base de production & variables d'environnement
 
