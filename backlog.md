@@ -496,7 +496,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Choix de l'enfant concerné.
   - Texte libre limité à **500 caractères** avec **compteur** visible.
   - Bouton d'envoi désactivé si vide ou au-delà de 500 caractères.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**. Route : `/parent/messages/new`.
   Déclenche l'email de notification **US-26**.
 - **Description technique** : `message-form.tsx` (`"use client"`) — choix de l'enfant
@@ -513,7 +513,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Liste des messages envoyés par le parent, du plus récent au plus ancien.
   - Chaque message rattaché à un enfant, avec date/heure et statut.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-22**. Route : `/parent/messages`.
 - **Description technique** : `app/parent/messages/page.tsx` — lecture `messages` filtrée
   `from_profile_id = profil`, jointe à `children.first_name`, triée `created_at desc`.
@@ -529,7 +529,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Parent sans enfant rattaché → message invitant à contacter la crèche.
   - Aucun événement pour la date consultée → message bienveillant.
   - Aucun message envoyé → « Vous n'avez pas encore envoyé de message à l'équipe ».
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : transverse aux US-19 à US-23.
 - **Description technique** : les trois cas sont couverts — `/parent` (aucun enfant
   rattaché → contacter la crèche), `Timeline` (`emptyHint` par date), `/parent/messages`
