@@ -67,12 +67,24 @@ export default defineConfig({
     // },
   ],
 
-  /* Playwright démarre `pnpm dev` lui-même avant les tests et réutilise le
-     serveur s'il tourne déjà (localement). Sur CI, il en lance toujours un neuf. */
+  /* En local : Playwright lance `pnpm dev` et réutilise un serveur déjà lancé.
+     En CI : serveur de production (`pnpm start`, le build est fait par un step
+     dédié) — plus stable et les `NEXT_PUBLIC_*` sont figés au build.
+     `env` transmet explicitement les variables au sous-process du serveur. */
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
+    command: process.env.CI ? "pnpm start" : "pnpm dev",
+    url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY:
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+      NEXT_PUBLIC_APP_URL:
+        process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
+      RESEND_API_KEY: process.env.RESEND_API_KEY ?? "",
+      RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
+    },
   },
 });

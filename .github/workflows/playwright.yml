@@ -2,9 +2,9 @@
 #
 # Déclenché sur push (staging, main) et sur PR vers main.
 #   - job `checks` : lint + tests unitaires Vitest + build (aucun secret requis)
-#   - job `e2e`    : parcours critiques Playwright (chromium)
+#   - job `e2e`    : parcours critiques Playwright (chromium), serveur de prod
 #
-# Secrets GitHub à créer (Settings → Secrets and variables → Actions) :
+# Secrets GitHub à créer (Settings → Secrets and variables → Actions → Repository secrets) :
 #   NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 #   E2E_STAFF_EMAIL, E2E_STAFF_PASSWORD, E2E_PARENT1_EMAIL, E2E_PARENT1_PASSWORD
 # (le dépôt est public : le fichier est visible, les secrets ne le sont pas.)
@@ -44,7 +44,16 @@ jobs:
   e2e:
     name: Tests E2E Playwright
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      E2E_STAFF_EMAIL: ${{ secrets.E2E_STAFF_EMAIL }}
+      E2E_STAFF_PASSWORD: ${{ secrets.E2E_STAFF_PASSWORD }}
+      E2E_PARENT1_EMAIL: ${{ secrets.E2E_PARENT1_EMAIL }}
+      E2E_PARENT1_PASSWORD: ${{ secrets.E2E_PARENT1_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -53,19 +62,27 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+
+      - name: Vérifier les secrets requis
+        run: |
+          fail=0
+          for v in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY \
+                   SUPABASE_SERVICE_ROLE_KEY E2E_STAFF_EMAIL E2E_STAFF_PASSWORD \
+                   E2E_PARENT1_EMAIL E2E_PARENT1_PASSWORD; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Secret GitHub manquant ou vide : $v"
+              fail=1
+            else
+              echo "OK $v"
+            fi
+          done
+          exit $fail
+
       - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
       - name: Playwright test (chromium)
         run: pnpm exec playwright test --project=chromium
-        env:
-          CI: "true"
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          E2E_STAFF_EMAIL: ${{ secrets.E2E_STAFF_EMAIL }}
-          E2E_STAFF_PASSWORD: ${{ secrets.E2E_STAFF_PASSWORD }}
-          E2E_PARENT1_EMAIL: ${{ secrets.E2E_PARENT1_EMAIL }}
-          E2E_PARENT1_PASSWORD: ${{ secrets.E2E_PARENT1_PASSWORD }}
+
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
