@@ -705,10 +705,16 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Workflow `.github/workflows/playwright.yml` créé par `pnpm create playwright`.
   - Les tests tournent sur push et sur PR.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-31**, **US-32**. Node ≥ 22.13 (pnpm 11).
-- **Description technique** : secrets d'environnement (Supabase de test, Resend) en variables
-  GitHub Actions.
+  **Action requise (humain)** : créer les secrets GitHub `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `E2E_STAFF_EMAIL`,
+  `E2E_STAFF_PASSWORD`, `E2E_PARENT1_EMAIL`, `E2E_PARENT1_PASSWORD` — sans eux le job E2E
+  échoue (le job `checks` passe sans secret).
+- **Description technique** : workflow `CI` retravaillé — 2 jobs. `checks` : `pnpm lint` +
+  `pnpm test` (Vitest) + `pnpm build`. `e2e` : `playwright install chromium` +
+  `playwright test --project=chromium`, env injecté depuis les secrets. Déclencheurs :
+  push sur `staging`/`main`, PR vers `main`. Rapport Playwright en artefact.
 
 ### US-34 — Recette & cas limites
 
