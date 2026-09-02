@@ -12,6 +12,7 @@ import {
 } from "@/lib/date";
 import { createServerClient } from "@/lib/supabase/server";
 import { ChildAvatar } from "@/components/child-avatar";
+import { InviteParentButton } from "@/components/invite-parent-button";
 import { DateSelector } from "@/components/date-selector";
 import { Timeline, type TimelineEvent } from "@/components/timeline";
 import { Button } from "@/components/ui/button";
@@ -133,15 +134,18 @@ export default async function StaffChildDetailPage({
           </div>
           <div className="flex gap-3">
             <dt className="w-24 shrink-0 text-ink-soft">Parents</dt>
-            <dd className="flex flex-wrap gap-1.5">
+            <dd className="flex flex-1 flex-col gap-2">
               {parents.length > 0 ? (
                 parents.map((p) => (
-                  <span
+                  <div
                     key={p.id}
-                    className="rounded-pill bg-primary-soft px-2.5 py-0.5 text-xs font-medium text-primary-strong"
+                    className="flex flex-wrap items-center gap-2"
                   >
-                    {p.first_name} {p.last_name}
-                  </span>
+                    <span className="rounded-pill bg-primary-soft px-2.5 py-0.5 text-xs font-medium text-primary-strong">
+                      {p.first_name} {p.last_name}
+                    </span>
+                    <InviteParentButton childId={child.id} parentId={p.id} />
+                  </div>
                 ))
               ) : (
                 <span className="text-ink-soft">Aucun parent rattaché</span>

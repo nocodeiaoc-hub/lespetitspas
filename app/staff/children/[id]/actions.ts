@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { EventType } from "@/lib/types";
 import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getProfile } from "@/lib/auth";
+import { sendParentInvitationEmail } from "@/lib/email/parent-invitation";
 
 export type AddEventState = { error: string | null };
 
@@ -115,4 +117,96 @@ export async function addEvent(
 
   revalidatePath(`/staff/children/${childId}`);
   redirect(`/staff/children/${childId}`);
+}
+
+export type InviteState = { ok: boolean; message: string | null };
+
+/**
+ * Génère un lien de création de mot de passe Supabase pour un parent déjà
+ * rattaché à l'enfant (table `family_members`) et le lui envoie par email
+ * via Resend (US-10 + US-25).
+ * Le rattachement lui-même se fait en base, hors application.
+ */
+export async function sendParentInvitation(
+  childId: string,
+  parentProfileId: string,
+  _prev: InviteState,
+): Promise<InviteState> {
+  const profile = await getProfile();
+  if (!profile || profile.role !== "staff") {
+    return { ok: false, message: "Accès réservé à l'équipe." };
+  }
+
+  const supabase = await createServerClient();
+
+  const { data: child } = await supabase
+    .from("children")
+    .select("first_name")
+    .eq("id", childId)
+    .single();
+  if (!child) return { ok: false, message: "Enfant introuvable." };
+
+  const { data: link } = await supabase
+    .from("family_members")
+    .select("child_id")
+    .eq("child_id", childId)
+    .eq("profile_id", parentProfileId)
+    .maybeSingle();
+  if (!link) {
+    return { ok: false, message: "Ce parent n'est pas rattaché à cet enfant." };
+  }
+
+  let admin: ReturnType<typeof createAdminClient>;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return {
+      ok: false,
+      message: "SUPABASE_SERVICE_ROLE_KEY manquante dans .env.local.",
+    };
+  }
+
+  const { data: userData, error: userErr } =
+    await admin.auth.admin.getUserById(parentProfileId);
+  const email = userData?.user?.email;
+  if (userErr || !email) {
+    return { ok: false, message: "Adresse email du parent introuvable." };
+  }
+
+  const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/login`;
+
+  // Nouveau parent → lien d'invitation ; parent déjà inscrit → lien de
+  // (re)définition du mot de passe. Aucun plantage dans les deux cas.
+  let actionLink: string | undefined;
+  const invite = await admin.auth.admin.generateLink({
+    type: "invite",
+    email,
+    options: { redirectTo },
+  });
+  actionLink = invite.data?.properties?.action_link;
+
+  if (!actionLink) {
+    const recovery = await admin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: { redirectTo },
+    });
+    actionLink = recovery.data?.properties?.action_link;
+  }
+
+  if (!actionLink) {
+    return { ok: false, message: "Impossible de générer le lien d'invitation." };
+  }
+
+  const sent = await sendParentInvitationEmail({
+    to: email,
+    childFirstName: child.first_name,
+    actionLink,
+  });
+
+  if (!sent.ok) {
+    return { ok: false, message: sent.error ?? "Envoi de l'email impossible." };
+  }
+
+  return { ok: true, message: `Invitation envoyée à ${email}.` };
 }

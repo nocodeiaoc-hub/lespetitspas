@@ -249,11 +249,15 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     `supabase.auth.admin.generateLink()` avec la clé `service_role`.
   - Le lien est à usage unique, valable 24 h.
   - Le cas « parent a déjà défini son mot de passe » est géré (message clair, pas de crash).
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-06**. L'envoi de l'email est
   traité en **US-25**.
-- **Description technique** : `SUPABASE_SERVICE_ROLE_KEY` côté serveur uniquement (jamais
-  `NEXT_PUBLIC_`). Déclenchée après insertion dans `family_members`.
+- **Description technique** : Server Action `sendParentInvitation(childId, parentProfileId)`
+  (`app/staff/children/[id]/actions.ts`, garde staff). Client admin isolé
+  (`lib/supabase/admin.ts`, `import "server-only"`, `SUPABASE_SERVICE_ROLE_KEY`).
+  `admin.auth.admin.generateLink({ type: "invite" })` puis repli sur `{ type: "recovery" }`
+  si le parent a déjà un compte. Vérifie le rattachement `family_members` avant.
+  Déclenchable depuis la fiche enfant (bouton « Envoyer l'invitation » par parent).
 
 ---
 
@@ -551,11 +555,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Email branded envoyé via **Resend** (pas l'email Supabase générique) : objet du type
     « Vous êtes invité à suivre la journée de [prénom] sur Les Petits Pas », présentation
     courte, bouton vers le lien, mention RGPD.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-10**. Variables : `RESEND_API_KEY`,
   `RESEND_FROM_EMAIL` (`onboarding@resend.dev`), `NEXT_PUBLIC_APP_URL`.
-- **Description technique** : appel Resend dans la Server Action. Adresse de test → n'envoie
-  qu'aux alias `+` de l'adresse du compte Resend (les comptes parents de test en sont).
+- **Description technique** : `lib/email/parent-invitation.ts` (`import "server-only"`) —
+  objet « Vous êtes invité à suivre la journée de [prénom] sur Les Petits Pas », corps HTML
+  aux couleurs de la charte (styles inline), bouton « Créer mon mot de passe » vers le lien
+  Supabase, mention RGPD. Envoi via SDK `resend`. Erreur non bloquante : le 403 du mode
+  test (destinataire ≠ compte Resend) est renvoyé proprement (base de l'US-27).
 
 ### US-26 — Email de notification à l'équipe (nouveau message)
 
