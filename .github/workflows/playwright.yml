@@ -63,6 +63,12 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
+      - name: Diagnostic — noms des secrets visibles
+        run: |
+          echo "Repo : ${{ github.repository }}"
+          echo "Secrets exposés à ce job (valeurs masquées) :"
+          echo '${{ toJSON(secrets) }}'
+
       - name: Vérifier les secrets requis
         run: |
           fail=0
