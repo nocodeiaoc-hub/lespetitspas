@@ -444,7 +444,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Une carte par enfant rattaché : prénom, photo ou initiales, dernier événement du jour,
     bouton « envoyer un message à l'équipe ».
   - Aucun enfant non rattaché n'apparaît.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**. Route : `/parent`.
 - **Description technique** : `app/parent/page.tsx` (Server Component) — `select` sur
   `children` filtré **implicitement par la RLS** (aucun `where` applicatif) ; requête
