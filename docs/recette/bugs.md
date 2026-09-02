@@ -32,6 +32,7 @@ concernée** — ils ne sont jamais arrivés en `staging` sous forme de régress
 | BUG001 | Erreur runtime `normalize is not a function` à l'ouverture de la liste des enfants | `/staff` | Majeur | Corrigé — `2c91def` |
 | BUG002 | Le prénom du membre d'équipe n'apparaît pas sur la timeline parent | `/parent/children/[id]` | Majeur | Corrigé — `f2ee6ad` + `supabase/06_profiles_staff_readable.sql` |
 | BUG003 | Les emails transactionnels n'arrivent pas aux comptes de test (alias `+`) | Fiche enfant → « Envoyer l'invitation » ; notification message | Mineur | Corrigé (contournement) — `1f876d9` |
+| BUG004 | Adresse email personnelle présente dans l'historique git public (3 anciens commits) | Dépôt GitHub (historique) | Mineur | Nouveau — décision en attente (voir détail) |
 
 ---
 
@@ -93,6 +94,32 @@ concernée** — ils ne sont jamais arrivés en `staging` sous forme de régress
   **Résolution définitive** en production : vérifier un domaine Resend et changer
   `RESEND_FROM_EMAIL` (**US-35**), puis vider `RESEND_TEST_RECIPIENT`.
 
+### BUG004 — Adresse email personnelle dans l'historique git public
+
+- **Description** : lors de l'audit de sécurité du 2026-09-02, l'adresse
+  `nocodeia.oc+…@gmail.com` (donc l'adresse de base `nocodeia.oc@gmail.com`) a été
+  retrouvée dans **3 anciens commits** de l'historique public : `f04114b`, `9bac08e`,
+  `7b2c73a` (scripts `supabase/04_seed_test_data.sql` et `05_rls_test.sql`).
+- **Page concernée** : dépôt GitHub `nocodeiaoc-hub/lespetitspas` (historique git,
+  branches `main` et `staging`).
+- **Comportement attendu** : les scripts SQL versionnés utilisent un **placeholder**
+  (`prenom.nom+…@gmail.com`), pas d'adresse réelle.
+- **Comportement observé** : l'arbre **courant est propre** (placeholder rétabli au
+  commit `146f70f`), mais les 3 commits antérieurs contiennent encore l'adresse réelle.
+- **Sévérité** : **Mineur** — il s'agit d'une **adresse email, pas d'un identifiant**
+  (aucun mot de passe, aucune clé API ou `service_role` n'a jamais été committé —
+  vérifié). Risque : spam / hameçonnage ciblé.
+- **Statut** : **Nouveau — décision en attente**. Trois options, au choix du chef de
+  projet :
+  1. **Accepter et documenter** (risque `R8` du PV) — le plus simple ; le dépôt reste
+     public, l'exposition est jugée acceptable pour un projet d'école.
+  2. **Passer le dépôt en privé** — supprime toute exposition publique (email + schéma
+     SQL) ; à vérifier avec les contraintes de la soutenance / de GitHub Pages.
+  3. **Réécrire l'historique** (`git filter-repo` + `push --force` sur `main` et
+     `staging`) — nettoie l'email, mais **invalide tous les SHA de commit** référencés
+     dans `bugs.md` / `pvrecette.md` / les messages de commit, et GitHub garde les
+     anciens commits en cache ~90 j.
+
 ---
 
 ## Procédure pour un nouveau bug
@@ -113,3 +140,4 @@ concernée** — ils ne sont jamais arrivés en `staging` sous forme de régress
 | Date | Révision |
 |---|---|
 | 2026-09-02 | Création du tableau. Recensement rétroactif de BUG001–BUG003 (rencontrés en dev Phases 5–7, tous corrigés). Recette formelle SC01–SC26 : aucun bug. |
+| 2026-09-02 | Audit de sécurité du dépôt : **aucun secret exposé** (ni `.env*`, ni clé API/`service_role`, ni `JOURNAL.md` — jamais committés). BUG004 ajouté (adresse email dans 3 anciens commits, Mineur, décision en attente). |

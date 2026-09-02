@@ -72,11 +72,12 @@ La recette formelle (SC01–SC26) n'a révélé **aucun bug**.
 |---|---|---|---|
 | R1 | **Base de production `lespetitspas-prod` pas encore créée / testée** | La recette a été faite sur `lespetitspas` (staging). Un écart de config (scripts SQL non rejoués, RLS absente) casserait la sécurité en prod. | US-35 : appliquer `01`→`07` sur `lespetitspas-prod`, rejouer `05_rls_test.sql`, **ne jamais** exécuter le seed `04`. |
 | R2 | **Emails Resend en mode test** (`onboarding@resend.dev`) | Sans domaine vérifié, les emails d'invitation et de notification **ne partent qu'à l'adresse du compte Resend**, pas aux vrais parents/staff. | US-35 : vérifier un domaine sur Resend, changer `RESEND_FROM_EMAIL`, **vider `RESEND_TEST_RECIPIENT`** en prod. |
-| R3 | **Dépôt GitHub public** | Le schéma SQL et les données de test sont visibles ; la surface d'information est large. Les secrets (service_role, mots de passe E2E) restent masqués (GitHub Secrets). | Aucune donnée réelle en base tant que la prod n'est pas ouverte ; ne jamais committer `.env*` ni `JOURNAL.md`. |
+| R3 | **Dépôt GitHub public** | Le schéma SQL et la structure des données de test sont visibles. **Audit du 2026-09-02 : aucun secret exposé** — `.env*`, `JOURNAL.md`, clés API et `service_role` n'ont jamais été committés (`.gitignore` en place). | Aucune donnée réelle en base tant que la prod n'est pas ouverte ; ne jamais committer `.env*` ni `JOURNAL.md` ; envisager le passage en dépôt privé après la soutenance. |
 | R4 | **Tests E2E contre la base staging** | Chaque run CI crée un événement et un message de test dans `lespetitspas` → accumulation. | Sans impact sur la prod. Nettoyage périodique du seed possible si besoin. |
 | R5 | **Dépendance à Open-Meteo** (fonctionnalité bonus) | API gratuite sans SLA ; une panne rend le bloc météo indisponible. | Déjà géré : cache journalier + message « Météo indisponible pour le moment », aucun crash (SC26). |
 | R6 | **Pas de monitoring / alerting en production** | Une erreur serveur ou une indisponibilité Supabase ne serait pas détectée automatiquement. | Hors périmètre MVP ; à prévoir après la mise en production. |
 | R7 | **Confirmation d'email Supabase** | Le choix `Confirm email` doit être cohérent en prod (comptes créés vs invitation). | À consigner dans `JOURNAL.md` et vérifier au moment de créer les comptes de production. |
+| R8 | **Adresse email personnelle dans l'historique git** (BUG004) | `nocodeia.oc@gmail.com` figure dans 3 anciens commits publics (arbre courant propre). Risque spam / hameçonnage, **pas un identifiant**. | Décision à prendre : accepter et documenter / dépôt privé / réécriture d'historique (voir `bugs.md`). |
 
 ---
 
@@ -89,8 +90,8 @@ La recette formelle (SC01–SC26) n'a révélé **aucun bug**.
 | **NoGo** | Il reste un bug bloquant, **ou** une faille RLS, **ou** une fonctionnalité MVP manquante. |
 
 État constaté : 26/26 scénarios `OK` · 4/4 scénarios NoGo (sécurité) `OK` ·
-0 bug bloquant · 0 bug majeur non corrigé · risques R1 et R2 = **prérequis de mise en
-production à lever (US-35)**.
+0 bug bloquant · 0 bug majeur non corrigé · **1 bug mineur ouvert** (BUG004, email dans
+l'historique git) · risques R1 et R2 = **prérequis de mise en production à lever (US-35)**.
 
 ---
 
