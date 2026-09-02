@@ -249,7 +249,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     `supabase.auth.admin.generateLink()` avec la clé `service_role`.
   - Le lien est à usage unique, valable 24 h.
   - Le cas « parent a déjà défini son mot de passe » est géré (message clair, pas de crash).
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-06**. L'envoi de l'email est
   traité en **US-25**.
 - **Description technique** : Server Action `sendParentInvitation(childId, parentProfileId)`
@@ -555,7 +555,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Email branded envoyé via **Resend** (pas l'email Supabase générique) : objet du type
     « Vous êtes invité à suivre la journée de [prénom] sur Les Petits Pas », présentation
     courte, bouton vers le lien, mention RGPD.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-10**. Variables : `RESEND_API_KEY`,
   `RESEND_FROM_EMAIL` (`onboarding@resend.dev`), `NEXT_PUBLIC_APP_URL`.
 - **Description technique** : `lib/email/parent-invitation.ts` (`import "server-only"`) —
@@ -574,7 +574,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Objet « Nouveau message de [prénom parent] pour [prénom enfant] », lien vers
     `/staff/messages`.
   - Aucune donnée médicale ou sensible dans le corps de l'email.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-22**.
 - **Description technique** : `sendMessage` (`app/parent/messages/actions.ts`) appelle
   `notifyStaff()` après l'`INSERT` réussi — **non bloquant** (try/catch, le message est
@@ -593,7 +593,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Succès et erreurs d'envoi gérés sans interrompre le parcours utilisateur.
   - Une erreur 403 (destinataire non autorisé avec l'adresse de test) est loguée, pas
     remontée comme un plantage.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-25**, **US-26**.
 - **Description technique** : appliqué dans les deux flux — invitation (`sendParentInvitation`
   renvoie `{ ok, message }`, jamais de throw) et notification (`notifyStaff` en try/catch,
