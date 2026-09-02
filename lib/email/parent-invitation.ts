@@ -83,13 +83,15 @@ export async function sendParentInvitationEmail({
 
   if (error) {
     console.error("Resend invitation email failed", error);
-    const msg = `${error.message ?? ""}`.toLowerCase();
+    const raw = `${error.message ?? ""}`.trim();
+    const isTestRestriction =
+      raw.toLowerCase().includes("testing emails") ||
+      raw.toLowerCase().includes("own email");
     return {
       ok: false,
-      error:
-        msg.includes("testing emails") || msg.includes("own email")
-          ? "Resend a refusé l'envoi : en mode test (onboarding@resend.dev), seule l'adresse du compte Resend et ses alias + sont acceptés."
-          : "L'email n'a pas pu être envoyé pour le moment.",
+      error: isTestRestriction
+        ? `Resend (mode test) : ${raw}`
+        : raw || "L'email n'a pas pu être envoyé pour le moment.",
     };
   }
 
