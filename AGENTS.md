@@ -95,6 +95,26 @@ qu'on ait à le demander** :
 6. Ne jamais supprimer une ligne du backlog ; une story abandonnée passe en `Terminé` avec
    une note, ou reste `À faire` avec une note d'explication.
 
+## Cahier de recette — règle de mise à jour (IMPORTANT)
+
+Le fichier [`docs/recette/cahierrecette.md`](docs/recette/cahierrecette.md) liste les
+scénarios de test (ID, objectif, prérequis, étapes, résultat attendu, résultat obtenu,
+commentaire/capture si KO). Il est rédigé **avant** de tester et tenu vivant **sans qu'on
+ait à le demander** :
+
+1. **Dès qu'un scénario est joué** (par l'humain ou en vérification agent), mettre à jour
+   son **Résultat obtenu** (`OK` / `KO` / `Bloquant` / `Non joué`) et, si `KO`/`Bloquant`,
+   la colonne **Commentaire** (cause, et capture à joindre dans `docs/recette/`).
+2. **Dès qu'un comportement de l'application change** (nouvelle US, correctif, refactor
+   visible), revoir les scénarios impactés : ajuster le résultat attendu, repasser le
+   **Résultat obtenu** à `Non joué`, ajouter un scénario si un nouveau parcours apparaît
+   (IDs `SCxx` séquentiels, jamais réattribués).
+3. Tenir à jour le **tableau de synthèse** en tête de fichier (vue Go/NoGo).
+4. Après mise à jour, proposer le commit :
+   `git add docs/recette/ && git commit -m "docs: maj cahier de recette"`.
+
+L'humain valide le contenu et garde la main sur le choix des scénarios.
+
 ## Conventions & patterns
 
 - **Langue de l'interface : français.** Textes utilisateur, libellés, messages d'erreur.

@@ -706,9 +706,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Scénarios de recette dans `docs/recette/`.
   - Cas d'erreur couverts : identifiants invalides, accès à une ressource non autorisée,
     aucune donnée pour le jour consulté, API du bonus indisponible.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de toutes les phases précédentes.
-- **Description technique** : documentation de recette (Markdown) + preuves (captures).
+- **Description technique** : [`docs/recette/cahierrecette.md`](docs/recette/cahierrecette.md)
+  rédigé (SC01–SC26 : ID, objectif, prérequis, étapes, résultat attendu/obtenu,
+  commentaire). Tableau de synthèse Go/NoGo en tête. Règle de mise à jour ajoutée dans
+  `AGENTS.md` (l'IA tient le fichier vivant). Reste : jouer formellement SC11, SC17, SC26
+  et joindre les captures.
 
 ### US-35 — Base de production & variables d'environnement
 
