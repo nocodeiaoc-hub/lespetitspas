@@ -68,6 +68,20 @@ feu vert sécurité.
 
 **Bilan : 26 / 26 scénarios `OK`.**
 
+### Couverture automatisée (Playwright — US-31 / US-32)
+
+Six parcours critiques sont rejoués automatiquement à chaque exécution de
+`pnpm exec playwright test` :
+
+| Test | Scénarios couverts |
+|---|---|
+| `tests/auth.spec.ts` | SC01 (login staff), SC15 (parent1 ne voit que ses enfants) |
+| `tests/staff-events.spec.ts` | SC08 (création repas → timeline), SC10 (blocage médicament) |
+| `tests/parent-isolation.spec.ts` | SC17 (URL forgée → redirection `/parent`) |
+| `tests/parent-messages.spec.ts` | SC19 + SC12 (message parent → visible côté équipe) |
+
+Suite exécutée le 2026-09-02 : **tous les tests au vert**.
+
 ---
 
 ## Scénarios détaillés
@@ -431,3 +445,4 @@ feu vert sécurité.
 |---|---|
 | 2026-09-02 | Création du cahier (SC01–SC26), rédigé avant l'exécution formelle. Statuts « OK » repris des validations effectuées pendant le développement des Phases 5–7. |
 | 2026-09-02 | SC11, SC17, SC26 joués et passés `OK` (captures SC17 / SC26 dans `docs/recette/`). **26 / 26 scénarios `OK`, 4 / 4 NoGo `OK`.** |
+| 2026-09-02 | Automatisation Playwright (US-31 / US-32) : 6 parcours critiques rejoués, suite au vert. Voir « Couverture automatisée ». |

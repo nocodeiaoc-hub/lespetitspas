@@ -665,7 +665,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Connexion staff → arrivée sur `/staff` avec la liste des enfants visible.
   - Création d'un événement de type repas → apparition dans la timeline.
   - Blocage médicament : bouton d'enregistrement désactivé pour un enfant sans autorisation.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend des Phases 4 et 5. `playwright.config.ts` :
   `baseURL = http://localhost:3000`, `webServer` lance `pnpm dev`.
 - **Description technique** : `playwright.config.ts` configuré (`baseURL`, `webServer`,
@@ -685,7 +685,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Parent 1 tente d'accéder à la fiche d'un enfant qui n'est pas le sien → erreur ou
     redirection vers `/parent`.
   - Envoi d'un message par parent 1 → réception côté équipe dans `/staff/messages`.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-21**, **US-22**.
 - **Description technique** : `tests/auth.spec.ts` (parent1 ne voit que Ana Maria + Sarah),
   `tests/parent-isolation.spec.ts` (URL forgée vers Ilyès → redirection `/parent`, id
