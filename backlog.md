@@ -652,9 +652,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Test du blocage médicament (autorisation absente → refus).
   - Test du calcul de durée de sieste.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-15**, **US-14**.
-- **Description technique** : fonctions pures testées isolément (Vitest ou runner au choix).
+- **Description technique** : **Vitest** (`vitest.config.mts`, `pnpm test`). Garde médicament
+  extraite en fonction pure `checkMedicationAllowed` (`lib/events.ts`) utilisée par la
+  Server Action `addEvent` ET testée. **31 tests au vert** : `lib/events.test.ts`
+  (médicament + `eventSummary`), `lib/utils.test.ts` (`napDurationLabel` + accents + âge),
+  `lib/date.test.ts` (bornes de journée Paris CET/CEST), `lib/weather.test.ts` (conseil
+  d'habillement). Tests E2E dans `tests/` (US-31/32), hors périmètre Vitest.
 
 ### US-31 — Tests E2E Playwright : parcours critiques équipe
 

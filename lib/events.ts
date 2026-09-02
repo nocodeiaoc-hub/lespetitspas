@@ -9,6 +9,34 @@ export const EVENT_LABELS: Record<EventType, string> = {
   incident: "Incident",
 };
 
+export const MEDICATION_NO_AUTHORISATION =
+  "Autorisation parentale absente pour cet enfant : la saisie d'un médicament est refusée.";
+export const MEDICATION_CONSENT_REQUIRED =
+  "Cochez « Autorisation parentale confirmée » pour enregistrer.";
+
+export type MedicationGuardResult =
+  | { allowed: true }
+  | { allowed: false; reason: string };
+
+/**
+ * Règle de sécurité médicament (US-15), logique pure et testable.
+ * Double contrôle : l'enfant doit avoir l'autorisation en fiche **et** le membre
+ * de l'équipe doit avoir coché la confirmation. La Server Action `addEvent`
+ * s'appuie dessus côté serveur (la validation client seule ne suffit pas).
+ */
+export function checkMedicationAllowed(input: {
+  medicationAllowed: boolean;
+  parentalConsentConfirmed: boolean;
+}): MedicationGuardResult {
+  if (!input.medicationAllowed) {
+    return { allowed: false, reason: MEDICATION_NO_AUTHORISATION };
+  }
+  if (!input.parentalConsentConfirmed) {
+    return { allowed: false, reason: MEDICATION_CONSENT_REQUIRED };
+  }
+  return { allowed: true };
+}
+
 /** Classes de couleur de la charte par type d'événement (cf. globals.css). */
 export const EVENT_TONE: Record<EventType, string> = {
   repas: "bg-event-repas text-event-repas-foreground",

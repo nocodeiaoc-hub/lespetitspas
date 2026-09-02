@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { EventType } from "@/lib/types";
+import { checkMedicationAllowed } from "@/lib/events";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getProfile } from "@/lib/auth";
@@ -86,16 +87,12 @@ export async function addEvent(
       .single();
 
     // Garde-fou serveur : non négociable, la validation client ne suffit pas.
-    if (!child?.medication_allowed) {
-      return {
-        error:
-          "Autorisation parentale absente pour cet enfant : la saisie d'un médicament est refusée.",
-      };
-    }
-
-    const consent = form.get("consent") === "on";
-    if (!consent) {
-      return { error: "Cochez « Autorisation parentale confirmée » pour enregistrer." };
+    const guard = checkMedicationAllowed({
+      medicationAllowed: child?.medication_allowed ?? false,
+      parentalConsentConfirmed: form.get("consent") === "on",
+    });
+    if (!guard.allowed) {
+      return { error: guard.reason };
     }
 
     const name = str(form, "med_name");

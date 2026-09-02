@@ -72,8 +72,9 @@ Routes attendues : `/login`, `/staff`, `/staff/children/[id]`, `/staff/messages`
 pnpm dev            # serveur de développement (http://localhost:3000)
 pnpm build          # build de production
 pnpm lint           # ESLint
-pnpm test           # tests unitaires (à mettre en place en Phase 8)
-pnpm exec playwright test   # tests end-to-end (à mettre en place en Phase 8)
+pnpm test           # tests unitaires Vitest (logique pure de lib/**)
+pnpm test:watch     # Vitest en mode watch
+pnpm test:e2e       # tests end-to-end Playwright (comptes E2E_* dans .env.local)
 ```
 
 Les scripts SQL ne s'exécutent pas via une commande : ils s'appliquent à la main dans le

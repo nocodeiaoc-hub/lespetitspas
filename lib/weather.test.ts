@@ -1,7 +1,4 @@
-// @ts-nocheck — runner (vitest) mis en place en Phase 8 (US-30).
-/**
- * Tests de la logique météo (US-29), sans réseau.
- */
+/** Tests de la logique météo (US-28 / US-29), sans réseau. */
 import { describe, it, expect } from "vitest";
 import { clothingAdvice, describeWeather, weatherKind } from "./weather";
 
