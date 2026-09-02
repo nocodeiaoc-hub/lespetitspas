@@ -13,7 +13,13 @@ import { ChildAvatar } from "@/components/child-avatar";
 type Filter = Section | "Tous";
 const FILTERS: Filter[] = ["Tous", ...SECTIONS];
 
-export function ChildrenList({ items }: { items: Child[] }) {
+export function ChildrenList({
+  items,
+  todayCounts = {},
+}: {
+  items: Child[];
+  todayCounts?: Record<string, number>;
+}) {
   const [query, setQuery] = useState("");
   const [section, setSection] = useState<Filter>("Tous");
 
@@ -90,6 +96,15 @@ export function ChildrenList({ items }: { items: Child[] }) {
                     {c.first_name} {c.last_name}
                   </span>
                   <span className="block text-sm text-ink-soft">{c.section}</span>
+                  <span
+                    className={`mt-0.5 block text-xs font-medium ${
+                      todayCounts[c.id] ? "text-success-strong" : "text-ink-soft"
+                    }`}
+                  >
+                    {todayCounts[c.id]
+                      ? `${todayCounts[c.id]} événement${todayCounts[c.id] > 1 ? "s" : ""} aujourd'hui`
+                      : "Aucun événement aujourd'hui"}
+                  </span>
                 </span>
                 <ChevronRight className="size-5 shrink-0 text-ink-soft" />
               </Link>

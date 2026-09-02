@@ -404,10 +404,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Aucun enfant inscrit → message d'onboarding (enfants créés par script SQL en Phase 4).
   - Erreur réseau / Supabase indisponible → message explicite + bouton « Réessayer ».
   - Jamais d'écran blanc.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : transverse aux US-11 à US-17.
-- **Description technique** : composants `EmptyState` / `ErrorBanner`, `error.tsx` et
-  `loading.tsx` de l'App Router.
+- **Description technique** : `app/staff/loading.tsx` (squelettes `SkeletonCards`),
+  `app/staff/error.tsx` + `app/error.tsx` (composant partagé `ErrorState`, bouton
+  « Réessayer » via `reset()`), `app/not-found.tsx` global pour les `notFound()`. États
+  vides déjà en place (liste enfants, timeline, messagerie). Les pages lèvent désormais
+  l'erreur Supabase pour atteindre la boundary plutôt que d'afficher un encart figé.
 
 ### US-39 — Indicateur d'activité du jour sur la carte enfant (`/staff`)
 
@@ -418,11 +421,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Chaque carte de `/staff` affiche « Aucun événement aujourd'hui » ou « N événement(s)
     aujourd'hui », dérivé côté interface (pas de champ stocké).
   - Le comptage porte sur la journée en cours (fuseau Europe/Paris).
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : sortie de **US-11**. Dépend de **US-13** (bornes de date
   des événements). Route : `/staff`.
-- **Description technique** : requête `events` (RLS staff) filtrée sur `created_at` >= début
-  de journée locale, agrégée par `child_id`, jointe à la liste côté Server Component.
+- **Description technique** : `app/staff/page.tsx` requête `events` (RLS staff) sur
+  `parisDayRange(todayInParis())`, agrège par `child_id` en `Record<string, number>`,
+  passé à `ChildrenList` → ligne « N événement(s) aujourd'hui » (verte) / « Aucun événement
+  aujourd'hui » sur chaque carte.
 
 ---
 
@@ -439,10 +444,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Une carte par enfant rattaché : prénom, photo ou initiales, dernier événement du jour,
     bouton « envoyer un message à l'équipe ».
   - Aucun enfant non rattaché n'apparaît.
-- **Statut** : À faire
+- **Statut** : En cours
 - **Contraintes / Dépendances** : dépend de **US-04**. Route : `/parent`.
-- **Description technique** : requête `children` jointe à `family_members` (RLS), filtrée
-  implicitement par la policy.
+- **Description technique** : `app/parent/page.tsx` (Server Component) — `select` sur
+  `children` filtré **implicitement par la RLS** (aucun `where` applicatif) ; requête
+  `events` du jour (fuseau Paris) pour le dernier événement par enfant. Carte = `<Link>`
+  vers `/parent/children/[id]` (stub US-20, protégé par la RLS). Bouton « Envoyer un
+  message à l'équipe » → `/parent/messages/new` (stub US-22). `loading.tsx` / `error.tsx`
+  dédiés, état vide « aucun enfant rattaché → contactez la crèche ». Nav parent ajoutée.
 
 ### US-20 — Journée de mon enfant `/parent/children/[id]`
 
