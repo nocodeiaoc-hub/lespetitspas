@@ -462,7 +462,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Timeline en lecture seule (le parent ne peut pas ajouter d'événement).
   - Affiche le prénom du membre de l'équipe qui a saisi chaque événement.
   - Sélecteur de date pour les jours précédents.
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-19**, **US-21**. Route : `/parent/children/[id]`.
 - **Description technique** : `app/parent/children/[id]/page.tsx` réutilise les composants
   partagés `Timeline` et `DateSelector` (extraits de l'espace équipe vers `components/`).
@@ -480,7 +480,7 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Une vérification **côté serveur** confirme que l'enfant consulté est rattaché au parent
     connecté.
   - Sinon → redirection vers `/parent` (ou erreur explicite).
-- **Statut** : En cours
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**. Bloquant pour **US-20**. Vérifié par
   le test E2E **US-32**.
 - **Description technique** : dans `app/parent/children/[id]/page.tsx`, `select` sur
