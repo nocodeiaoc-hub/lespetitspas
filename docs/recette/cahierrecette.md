@@ -413,7 +413,8 @@ production. À ce jour : **SC17 à confirmer par capture** (code + build vérifi
   la timeline et le reste de la page fonctionnent ; la route renvoie `503`, l'erreur est
   journalisée.
 - **Résultat obtenu** : `Non joué`
-- **Commentaire** : scénario de test décrit dans `docs/featurebonus.md`.
+- **Commentaire** : scénario de test décrit dans `docs/featurebonus.md`. Panne
+  simulable via `WEATHER_FORCE_ERROR=1` dans `.env.local` (interrupteur de recette).
 
 ---
 

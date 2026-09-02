@@ -48,6 +48,11 @@ export async function GET() {
   }
 
   try {
+    // Interrupteur de test (recette SC26) : simule une API météo indisponible.
+    if (process.env.WEATHER_FORCE_ERROR === "1") {
+      throw new Error("WEATHER_FORCE_ERROR (simulation panne API)");
+    }
+
     const url =
       `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${CRECHE_LOCATION.latitude}&longitude=${CRECHE_LOCATION.longitude}` +

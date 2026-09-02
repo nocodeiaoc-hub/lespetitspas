@@ -66,13 +66,17 @@ portée ; ciel dégagé et chaud → casquette et lunettes.
 2. Le bloc météo s'affiche avec température, résumé et conseil cohérents.
 3. Recharger la page : réponse instantanée (lecture du cache, aucun appel réseau).
 
-### 2. API externe indisponible (US-29)
-1. Simuler la panne : couper le réseau, **ou** pointer `lib/weather.ts` vers un
-   host invalide, **ou** bloquer `api.open-meteo.com`.
-2. Ouvrir la timeline parent pour un jour **non encore en cache**.
-3. Attendu : le bloc affiche **« Météo indisponible pour le moment. »**, la
+### 2. API externe indisponible (US-29 / recette SC26)
+1. Vider le cache du jour : SQL Editor →
+   `delete from public.weather_cache where day = current_date;`
+2. Simuler la panne : dans `.env.local`, `WEATHER_FORCE_ERROR=1`, puis redémarrer
+   `pnpm dev`. (Alternatives : couper le réseau, ou pointer `lib/weather.ts` vers
+   un host invalide.)
+3. Ouvrir la timeline parent (date du jour).
+4. Attendu : le bloc affiche **« Météo indisponible pour le moment. »**, la
    timeline et le reste de la page fonctionnent normalement (route → `503`,
-   erreur journalisée côté serveur, aucun crash).
+   `weather unavailable …` journalisé côté serveur, aucun crash).
+5. Remettre `WEATHER_FORCE_ERROR=` (vide), redémarrer → la météo revient.
 
 ### 3. Logique pure
 `lib/weather.ts` est testable sans réseau — voir `lib/weather.test.ts`
