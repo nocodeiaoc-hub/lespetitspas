@@ -45,13 +45,13 @@ Les captures d'écran des scénarios `KO` / `Bloquant` sont déposées dans
 | SC08 | Saisie d'un repas → apparaît dans la timeline | Majeur | OK |
 | SC09 | Saisie d'une sieste | Majeur | OK |
 | **SC10** | **Blocage médicament — enfant sans autorisation** | **NoGo** | OK |
-| SC11 | Saisie médicament — enfant autorisé | Majeur | Non joué |
+| SC11 | Saisie médicament — enfant autorisé | Majeur | OK |
 | SC12 | Messagerie équipe : liste + statuts nouveau/lu/traité | Majeur | OK |
 | SC13 | États vides & erreur (espace équipe) | Mineur | OK |
 | SC14 | Indicateur d'activité du jour sur la carte enfant | Mineur | OK |
 | **SC15** | **Accueil parent — voit uniquement ses enfants** | **NoGo** | OK |
 | SC16 | Timeline parent : lecture seule + prénom du staff | Majeur | OK |
-| **SC17** | **Garde serveur parent → enfant (URL forgée)** | **NoGo** | Non joué |
+| **SC17** | **Garde serveur parent → enfant (URL forgée)** | **NoGo** | OK |
 | **SC18** | **Envoi message parent vers un enfant non rattaché** | **NoGo** | OK |
 | SC19 | Envoi d'un message parent (compteur 500) | Majeur | OK |
 | SC20 | Historique des messages envoyés (parent) | Majeur | OK |
@@ -60,10 +60,13 @@ Les captures d'écran des scénarios `KO` / `Bloquant` sont déposées dans
 | SC23 | Email de notification équipe + RGPD (pas de contenu) | Majeur | OK |
 | SC24 | Échec d'envoi email non bloquant | Majeur | OK |
 | SC25 | Bloc météo + conseil d'habillement (parent) | Bonus | OK |
-| SC26 | Météo indisponible → message clair | Bonus | Non joué |
+| SC26 | Météo indisponible → message clair | Bonus | OK |
 
 **Critère NoGo** : tout scénario `NoGo` en `KO` / `Bloquant` interdit la mise en
-production. À ce jour : **SC17 à confirmer par capture** (code + build vérifiés).
+production. À ce jour : **les 4 scénarios NoGo (SC10, SC15, SC17, SC18) sont `OK`** →
+feu vert sécurité.
+
+**Bilan : 26 / 26 scénarios `OK`.**
 
 ---
 
@@ -212,8 +215,10 @@ production. À ce jour : **SC17 à confirmer par capture** (code + build vérifi
   4. Enregistrer.
 - **Résultat attendu** : bouton actif seulement après la case cochée ; l'événement
   **Médicament** apparaît dans la timeline.
-- **Résultat obtenu** : `Non joué`
-- **Commentaire** : à jouer sur un enfant autorisé (compléter le seed si besoin).
+- **Résultat obtenu** : `OK`
+- **Commentaire** : joué sur **Ana Maria** (`medication_allowed = true`) le 2026-09-02.
+  Bouton désactivé tant que la case n'est pas cochée, puis événement Médicament visible
+  en tête de timeline.
 
 ### SC12 — Messagerie équipe : liste + statuts
 
@@ -290,10 +295,10 @@ production. À ce jour : **SC17 à confirmer par capture** (code + build vérifi
   1. Aller sur `/parent/children/<id-d-Ilyès>` en modifiant l'URL.
 - **Résultat attendu** : **redirection immédiate vers `/parent`**, aucune donnée d'Ilyès
   affichée. Les événements d'Ilyès ne sont jamais chargés.
-- **Résultat obtenu** : `Non joué`
-- **Commentaire** : logique vérifiée (code + `pnpm build`) : `single()` filtré par la RLS
-  → `redirect("/parent")` avant toute requête `events`. **Capture à joindre** pour la
-  soutenance.
+- **Résultat obtenu** : `OK`
+- **Commentaire** : joué le 2026-09-02 — connecté en parent1, saisie de l'URL
+  `/parent/children/<id-Ilyès>` (et avec `?date=…`) → **redirection immédiate vers
+  `/parent`**, aucune donnée d'Ilyès affichée. Capture : `docs/recette/SC17.png`.
 
 ### SC18 — Envoi message parent vers un enfant non rattaché *(NoGo)*
 
@@ -412,9 +417,11 @@ production. À ce jour : **SC17 à confirmer par capture** (code + build vérifi
 - **Résultat attendu** : le bloc affiche **« Météo indisponible pour le moment. »** ;
   la timeline et le reste de la page fonctionnent ; la route renvoie `503`, l'erreur est
   journalisée.
-- **Résultat obtenu** : `Non joué`
-- **Commentaire** : scénario de test décrit dans `docs/featurebonus.md`. Panne
-  simulable via `WEATHER_FORCE_ERROR=1` dans `.env.local` (interrupteur de recette).
+- **Résultat obtenu** : `OK`
+- **Commentaire** : joué le 2026-09-02 — cache du jour vidé + `WEATHER_FORCE_ERROR=1`.
+  Le bloc affiche « Météo indisponible pour le moment. », la timeline fonctionne,
+  `/api/weather` renvoie `503`. Interrupteur remis à vide ensuite. Capture :
+  `docs/recette/SC26.png`.
 
 ---
 
@@ -423,3 +430,4 @@ production. À ce jour : **SC17 à confirmer par capture** (code + build vérifi
 | Date | Révision |
 |---|---|
 | 2026-09-02 | Création du cahier (SC01–SC26), rédigé avant l'exécution formelle. Statuts « OK » repris des validations effectuées pendant le développement des Phases 5–7. |
+| 2026-09-02 | SC11, SC17, SC26 joués et passés `OK` (captures SC17 / SC26 dans `docs/recette/`). **26 / 26 scénarios `OK`, 4 / 4 NoGo `OK`.** |
