@@ -29,6 +29,21 @@ export async function sendMessage(
   }
 
   const supabase = await createServerClient();
+
+  // Garde serveur : l'enfant doit être rattaché au parent connecté.
+  // (La policy RLS `messages_insert_parent` le refuserait aussi ; ce contrôle
+  // explicite donne un message clair au lieu d'une erreur Postgres brute.)
+  const { data: link } = await supabase
+    .from("family_members")
+    .select("child_id")
+    .eq("child_id", childId)
+    .eq("profile_id", profile.id)
+    .maybeSingle();
+
+  if (!link) {
+    return { error: "Cet enfant n'est pas rattaché à votre compte." };
+  }
+
   const { error } = await supabase.from("messages").insert({
     child_id: childId,
     from_profile_id: profile.id,
@@ -36,7 +51,10 @@ export async function sendMessage(
     status: "nouveau",
   });
 
-  if (error) return { error: `Envoi impossible : ${error.message}` };
+  if (error) {
+    console.error("sendMessage insert failed", error);
+    return { error: "Envoi impossible pour le moment. Réessayez." };
+  }
 
   revalidatePath("/parent/messages");
   redirect("/parent/messages?envoye=1");
