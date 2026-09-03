@@ -129,8 +129,10 @@ rencontré, même mineur. Tenu vivant **sans qu'on ait à le demander** :
    corriger, ajouter/adapter un test, vérifier (`pnpm build`, `pnpm lint`, scénario de
    recette concerné), fusionner.
 3. **Dès qu'un bug est corrigé** : passer le statut à `Corrigé` avec l'**ID du commit
-   ou de la PR**, puis rejouer et mettre à jour le scénario de recette impacté.
-4. Tenir à jour le **tableau de synthèse** en tête de fichier.
+   ou de la PR**, **déplacer la ligne de « Bugs ouverts » vers « Bugs corrigés »**
+   (jamais de suppression — traçabilité), puis rejouer et mettre à jour le scénario de
+   recette impacté.
+4. Tenir à jour les deux sous-tableaux (« Bugs ouverts » / « Bugs corrigés »).
 5. Après mise à jour, proposer :
    `git add docs/recette/ && git commit -m "docs: maj tableau de bugs"`.
 

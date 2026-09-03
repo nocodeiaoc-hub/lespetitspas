@@ -10,13 +10,13 @@
 
 ## Version
 
-| | |
-|---|---|
-| **Date** | 2026-09-02 |
-| **Version / commit** | branche `staging` (dernier commit du jour) |
+| |                                                                                                                                                                                                                       |
+|---|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Date** | 2026-09-02                                                                                                                                                                                                            |
+| **Version / commit** | branche `staging` (dernier commit du jour)                                                                                                                                                                            |
 | **Environnement testé** | app en local (`http://localhost:3000`) + CI GitHub Actions ; base Supabase `lespetitspas` (dev/staging), scripts `01`→`07` appliqués ; emails Resend en mode test (`onboarding@resend.dev` + `RESEND_TEST_RECIPIENT`) |
-| **Testeur** | _[nom / rôle]_ |
-| **Base de production** | `lespetitspas-prod` **non encore créée** (US-35) |
+| **Testeur** | _[nocodeia.oc/ étudiant]_                                                                                                                                                                                             |
+| **Base de production** | `lespetitspas-prod` **non encore créée** (US-35)                                                                                                                                                                      |
 
 ---
 
@@ -50,11 +50,19 @@ Détail par domaine :
 
 ## Bugs résiduels
 
-**Aucun bug résiduel non corrigé.**
+**0 bug bloquant · 0 bug majeur · 1 bug mineur ouvert** (détail dans [`bugs.md`](bugs.md)).
 
-3 bugs ont été rencontrés **pendant le développement** (Phases 5–7) et **tous corrigés
-avant la validation de la User Story concernée** — aucun n'a atteint `staging` sous forme
-de régression (détail dans [`bugs.md`](bugs.md)) :
+### Ouvert
+
+| ID | Description | Sévérité | Statut |
+|---|---|---|---|
+| BUG004 | Adresse email personnelle dans 3 anciens commits publics (arbre courant propre) | Mineur | Ouvert — décision en attente (accepter / dépôt privé / réécriture d'historique). Voir risque **R8**. |
+
+### Corrigés (rappel)
+
+3 bugs rencontrés **pendant le développement** (Phases 5–7), **tous corrigés avant la
+validation de la User Story concernée** — aucun n'a atteint `staging` sous forme de
+régression :
 
 | ID | Description | Sévérité | Statut |
 |---|---|---|---|
