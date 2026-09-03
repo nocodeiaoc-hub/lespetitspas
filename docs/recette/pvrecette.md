@@ -12,8 +12,8 @@
 
 | |                                                                                                                                                                                                                       |
 |---|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Date** | 2026-09-02                                                                                                                                                                                                            |
-| **Version / commit** | branche `staging` (dernier commit du jour)                                                                                                                                                                            |
+| **Date** | 2026-09-03                                                                                                                                                                                                            |
+| **Version / commit** | branche `main` (PR `staging` → `main`) — déploiement Vercel `https://lespetitspas-kappa.vercel.app/`                                                                                                                    |
 | **Environnement testé** | app en local (`http://localhost:3000`) + CI GitHub Actions ; base Supabase `lespetitspas` (dev/staging), scripts `01`→`07` appliqués ; emails Resend en mode test (`onboarding@resend.dev` + `RESEND_TEST_RECIPIENT`) |
 | **Testeur** | _[nocodeia.oc/ étudiant]_                                                                                                                                                                                             |
 | **Base de production** | `lespetitspas-prod` **non encore créée** (US-35)                                                                                                                                                                      |
@@ -105,17 +105,32 @@ l'historique git) · risques R1 et R2 = **prérequis de mise en production à le
 
 ## Décision
 
-> _À compléter par le chef de projet : **Go** / **Go conditionnel** / **NoGo**._
-
-
+**Go** — mise en production autorisée, sous réserve de lever les prérequis **R1** et **R2**
+(configuration de `lespetitspas-prod` et sortie du mode test Resend) avant d'ouvrir
+l'application à de vraies familles.
 
 ## Justification
 
-> _À compléter (5 à 10 lignes) : synthèse de l'état de l'application, prise en compte des
-> risques R1–R7, conditions éventuelles (ce qui doit être fait avant/juste après la mise
-> en production)._
+L'application couvre l'intégralité du périmètre MVP : les 26 scénarios de recette sont `OK`,
+dont les 4 scénarios de sécurité classés NoGo — blocage médicament côté client **et** serveur,
+isolation stricte des données parent, URL forgée redirigée, message vers un enfant non
+rattaché refusé. La RLS Supabase est la source de vérité de la sécurité et a été vérifiée
+(`05_rls_test.sql` au vert) ; les gardes applicatives ne font que la doubler.
 
+Aucun bug bloquant ni majeur non corrigé. Les trois bugs rencontrés en développement
+(BUG001–003) ont été corrigés avant la validation de leur User Story et n'ont laissé aucune
+régression ; la recette formelle SC01–SC26 n'a rien révélé. Le seul point ouvert, **BUG004**
+(adresse email personnelle dans trois anciens commits publics), est mineur — une gêne
+potentielle, pas un identifiant — et documenté avec ses options de traitement.
 
+Deux prérequis conditionnent l'ouverture au public et doivent être traités dans la foulée du
+déploiement : **R1** — appliquer les scripts `01`→`07` sur `lespetitspas-prod`, rejouer
+`05_rls_test.sql`, ne **jamais** exécuter le seed `04` ; **R2** — vérifier un domaine sur
+Resend, ajuster `RESEND_FROM_EMAIL` et vider `RESEND_TEST_RECIPIENT` (sinon les emails
+d'invitation et de notification ne partent qu'à l'adresse du compte Resend). Les autres
+risques sont soit déjà atténués (gestion d'erreur météo sans crash, aucun secret committé),
+soit hors périmètre MVP (monitoring, R6). **Aucune donnée réelle d'enfant ne doit être
+saisie tant que R1 n'est pas levé.**
 
 ---
 
