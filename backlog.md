@@ -148,6 +148,48 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   enfants Ana Maria / Sarah / Ilyès, liens `family_members` par lookup email). Non appliqué
   en production.
 
+### US-37 — Branchement des clients Supabase (SDK + navigateur/serveur)
+
+- **User Story** : En tant que développeur, je veux préparer la connexion à Supabase
+  (librairies + clients navigateur et serveur) afin que les écrans d'authentification et
+  de données puissent s'appuyer dessus.
+- **Entité** : brique Supabase (`lib/supabase/`)
+- **Critères d'acceptation** :
+  - `@supabase/supabase-js` et `@supabase/ssr` installés.
+  - `.env.local` créé avec `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+    `NEXT_PUBLIC_APP_URL` (valeurs à renseigner par le développeur).
+  - Client navigateur (`lib/supabase/client.ts`) et client serveur
+    (`lib/supabase/server.ts`, asynchrone, gestion des cookies) créés pour l'App Router.
+  - Aucun écran ni style modifié à ce stade ; `pnpm build` au vert.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-05**. Bloquant pour **US-07**, **US-08**.
+  Le middleware de rafraîchissement de session (renommé « proxy » dans cette version de
+  Next.js) est hors périmètre ici et traité en **US-08**. Connexion vérifiée en réel
+  (endpoint Auth joignable, PostgREST joignable, RLS bloque la lecture anonyme de `children`).
+- **Description technique** : `createBrowserClient` / `createServerClient` de `@supabase/ssr`,
+  API cookies `getAll` / `setAll`, `cookies()` de `next/headers` désormais asynchrone.
+
+### US-38 — Configuration de la charte graphique « Nuage » dans le thème
+
+- **User Story** : En tant que développeur, je veux configurer la charte Nuage dans le
+  thème du projet afin que tous les écrans soient cohérents sans réglage écran par écran.
+- **Entité** : thème (`app/globals.css`, `app/layout.tsx`)
+- **Critères d'acceptation** :
+  - Tokens de la charte Nuage (couleurs, polices, rayons, ombres) repris de la maquette
+    Phase 2 et mappés sur les tokens sémantiques ShadCN dans `app/globals.css`.
+  - Polices DM Sans (corps) et Plus Jakarta Sans (titres) chargées via `next/font`.
+  - Layout global en place : `lang="fr"`, fond `canvas`, texte `ink`, police, metadata.
+  - Règle ajoutée dans `AGENTS.md` : tous les écrans en composants ShadCN alignés sur la
+    charte.
+  - `pnpm dev` démarre et affiche les couleurs de la charte ; `pnpm build` au vert.
+  - Aucun écran métier codé à ce stade.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : charte **Nuage** retenue en Phase 2. Aucune dépendance.
+- **Description technique** : `@theme inline` (Tailwind v4) — deux familles de tokens
+  (sémantiques ShadCN + palette Nuage étendue `ink` / `surface` / `canvas` / `*-soft` /
+  `event-*`). Pas de dark mode métier (charte claire uniquement) ; bloc `.dark` fourni mais
+  dormant (pas de sélecteur de thème).
+
 ### US-07 — Écran de connexion `/login`
 
 - **User Story** : En tant qu'utilisateur, je veux me connecter avec mon email et mon mot
@@ -157,10 +199,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Champs email + mot de passe, message d'erreur **explicite** en cas d'échec.
   - Redirection par rôle : `staff` → `/staff`, `parent` → `/parent`.
   - Un utilisateur déjà connecté qui ouvre `/login` est redirigé vers son espace.
-- **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-05**. Route : `/login`.
-- **Description technique** : `@supabase/ssr`, client Supabase côté navigateur pour le
-  `signInWithPassword`, lecture du rôle dans `profiles` côté serveur pour la redirection.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-05**, **US-37**. Route : `/login`.
+- **Description technique** : `@supabase/ssr`. Connexion via **Server Action** `signIn`
+  (`app/actions.ts`) sur le client serveur — c'est elle qui pose les cookies d'auth —,
+  puis lecture du rôle dans `profiles` (`lib/auth.ts`, `getProfile` mémoïsé) et
+  `redirect()` par rôle. Formulaire client `useActionState` (`app/login/login-form.tsx`),
+  message d'erreur générique « Email ou mot de passe incorrect. ». `/login` et `/`
+  redirigent l'utilisateur déjà connecté vers son espace.
 
 ### US-08 — Déconnexion & persistance de session
 
@@ -171,10 +217,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Bouton de déconnexion accessible depuis toutes les pages authentifiées.
   - La session persiste après rechargement de la page.
   - Après déconnexion, tout accès à une route protégée renvoie vers `/login`.
-- **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-07**.
-- **Description technique** : middleware Next.js de rafraîchissement de session
-  (`@supabase/ssr`), cookies httpOnly.
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-07**, **US-37**.
+- **Description technique** : `proxy.ts` (ex-`middleware`, renommé Next.js 16) +
+  `lib/supabase/middleware.ts` (`updateSession`) rafraîchit la session à chaque
+  navigation et réécrit les cookies → persistance après rechargement + garde optimiste
+  (visiteur → `/login`). Bouton de déconnexion (`components/logout-button.tsx`) dans la
+  coquille `AppShell`, présent sur toutes les pages `/staff` et `/parent` ; Server Action
+  `signOut` → `supabase.auth.signOut()` → `redirect('/login')`.
 
 ### US-09 — Réinitialisation du mot de passe
 
@@ -199,11 +249,15 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     `supabase.auth.admin.generateLink()` avec la clé `service_role`.
   - Le lien est à usage unique, valable 24 h.
   - Le cas « parent a déjà défini son mot de passe » est géré (message clair, pas de crash).
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-06**. L'envoi de l'email est
   traité en **US-25**.
-- **Description technique** : `SUPABASE_SERVICE_ROLE_KEY` côté serveur uniquement (jamais
-  `NEXT_PUBLIC_`). Déclenchée après insertion dans `family_members`.
+- **Description technique** : Server Action `sendParentInvitation(childId, parentProfileId)`
+  (`app/staff/children/[id]/actions.ts`, garde staff). Client admin isolé
+  (`lib/supabase/admin.ts`, `import "server-only"`, `SUPABASE_SERVICE_ROLE_KEY`).
+  `admin.auth.admin.generateLink({ type: "invite" })` puis repli sur `{ type: "recovery" }`
+  si le parent a déjà un compte. Vérifie le rattachement `family_members` avant.
+  Déclenchable depuis la fiche enfant (bouton « Envoyer l'invitation » par parent).
 
 ---
 
@@ -221,12 +275,16 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Recherche par prénom/nom.
   - Filtre par section : Bébés / Moyens / Grands (+ « Tous »).
   - Carte enfant : avatar (photo si URL renseignée, sinon initiales colorées), prénom,
-    section, indicateur d'activité du jour dérivé côté interface (présence d'événements).
+    section.
   - Clic sur une carte → fiche enfant.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-07**. Route : `/staff`.
-- **Description technique** : Server Component qui lit `children` (RLS staff), recherche/filtre
-  côté client. Pas de champ « statut » stocké en base.
+  L'indicateur d'activité du jour est sorti dans **US-39** (dépend des événements, US-13).
+- **Description technique** : `app/staff/page.tsx` (Server Component) lit `children`
+  (RLS staff), passe la liste à `app/staff/children-list.tsx` (`"use client"`) qui gère
+  recherche (tolérante aux accents) et filtre de section. Cartes = `<Link>` vers
+  `/staff/children/[id]`. Composant `ChildAvatar` (photo → repli initiales colorées).
+  États vides : aucun enfant / aucun résultat. Pas de champ « statut » stocké en base.
 
 ### US-12 — Fiche enfant : résumé `/staff/children/[id]`
 
@@ -236,9 +294,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Encart résumé : allergies, autorisation médicament (badge), parents rattachés (noms/contact).
   - Bloc « messages non traités » avec compteur et aperçu, lien vers la messagerie.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-11**. Route : `/staff/children/[id]`.
-- **Description technique** : Server Component, jointures `family_members` → `profiles`.
+  Lien vers la messagerie repoussé à **US-16** (route `/staff/messages` pas encore créée) :
+  pour l'instant, aperçu inline des messages non traités.
+- **Description technique** : Server Component `app/staff/children/[id]/page.tsx`, 4 requêtes
+  en parallèle (child, `family_members`→`profiles`, `messages` non traités +
+  `from`→`profiles`, `events` du jour). Bouton « Ajouter un événement » →
+  `/staff/children/[id]/nouvel-evenement` (stub US-14).
 
 ### US-13 — Timeline du jour + sélecteur de date
 
@@ -250,10 +313,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Filtre « Aujourd'hui » par défaut, sélecteur de date pour les jours précédents.
   - Un badge distinct par type d'événement.
   - Note indiquant la dernière heure de synchronisation (pas de temps réel).
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-12**.
-- **Description technique** : requête `events` filtrée par `child_id` et intervalle de date.
-  Rechargement de page pour actualiser (pas de Realtime).
+- **Description technique** : requête `events` filtrée par `child_id` et bornes UTC de la
+  journée vécue à Paris (`lib/date.ts`, `parisDayRange`). Sélecteur de date client
+  (`date-selector.tsx`) qui pousse `?date=YYYY-MM-DD` → le Server Component recharge.
+  `Timeline` : badge coloré par type (`EventBadge` + tokens `event-*`), résumé lisible
+  (`lib/events.ts`), note « dernière synchro », état vide bienveillant. Pas de Realtime.
 
 ### US-14 — Formulaire d'ajout d'événement (repas / sieste / activité / incident)
 
@@ -268,10 +334,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     - **Incident** : type (chute/morsure/fièvre/autre) + gravité (léger/modéré/urgent) + note.
   - À l'enregistrement, l'événement apparaît en haut de la timeline.
   - L'auteur (membre de l'équipe connecté) et l'horodatage sont enregistrés.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-13**. Le type **médicament** est traité
-  en **US-15**.
-- **Description technique** : Server Action d'insertion `events` (RLS staff), `author_id = auth.uid()`.
+  en **US-15**. Route : `/staff/children/[id]/nouvel-evenement`.
+- **Description technique** : `event-form.tsx` (`"use client"`) — 5 boutons de type,
+  champs conditionnels, `SegmentedField` (radios en puces) pour les enums, `Input type=time`
+  pour les heures. Server Action `addEvent` (`actions.ts`, `.bind(childId)`) : garde staff,
+  `author_id = profil connecté`, insertion `events` avec seulement les colonnes du type
+  choisi (contrainte CHECK), puis `revalidatePath` + `redirect` vers la fiche.
 
 ### US-15 — Saisie d'un médicament : double validation obligatoire
 
@@ -285,10 +355,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - **Serveur** : la Server Action vérifie que la colonne d'autorisation médicament de
     `children` est `true` pour cet enfant avant tout `INSERT`. Sinon → statut **403**,
     aucune donnée écrite.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-14**. Règle non négociable.
-- **Description technique** : garde-fou serveur dans la Server Action ; test unitaire dédié
-  (**US-30**) et test E2E (**US-31**).
+- **Description technique** : **Client** — si `medication_allowed` est faux, bandeau rouge
+  + bouton désactivé (aucun champ affiché) ; sinon case « Autorisation parentale
+  confirmée » obligatoire, bouton désactivé tant qu'elle n'est pas cochée + texte d'aide.
+  **Serveur** — `addEvent` relit `children.medication_allowed`, refuse si faux (aucun
+  INSERT), puis exige `consent === "on"`. La contrainte CHECK Postgres impose en plus
+  `parental_consent_confirmed = true`. Test unitaire dédié (**US-30**), E2E (**US-31**).
 
 ### US-16 — Messagerie équipe `/staff/messages`
 
@@ -299,9 +373,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Liste triée du plus récent au plus ancien (pas un fil de discussion par enfant).
   - Chaque ligne : prénom du parent, prénom de l'enfant concerné, extrait, date/heure, statut.
   - Filtre par statut.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-07**. Route : `/staff/messages`.
-- **Description technique** : lecture `messages` (RLS staff) au chargement de la page.
+- **Description technique** : `page.tsx` (Server Component) lit `messages` (RLS staff)
+  triés `created_at desc`, joint `from_profile_id`→`profiles.first_name` et
+  `child_id`→`children.first_name`. `messages-list.tsx` (`"use client"`) : filtre par
+  statut (Tous / Nouveaux / Lus / Traités avec compteurs), carte par message. Lien
+  « Messages » ajouté à la nav de l'espace équipe (`AppShell` + `Nav`).
 
 ### US-17 — Gestion des statuts de message (nouveau / lu / traité)
 
@@ -312,10 +390,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Un message arrive en `nouveau`.
   - Il passe à `lu` quand l'équipe l'ouvre.
   - Il passe à `traité` via un bouton dédié, une fois l'information prise en compte.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-16**.
-- **Description technique** : Server Action / route handler d'`UPDATE messages.status`
-  (RLS : UPDATE staff uniquement).
+- **Description technique** : Server Actions `markRead` / `markProcessed`
+  (`app/staff/messages/actions.ts`, garde staff, `UPDATE messages.status`, RLS staff).
+  Client : `useOptimistic` pour un retour immédiat, clic sur un message « nouveau » →
+  `lu`, bouton « Marquer comme traité » → `traite`. `revalidatePath` rafraîchit aussi
+  le bloc « messages à traiter » de la fiche enfant.
 
 ### US-18 — États vides & états d'erreur (espace équipe)
 
@@ -327,10 +408,30 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Aucun enfant inscrit → message d'onboarding (enfants créés par script SQL en Phase 4).
   - Erreur réseau / Supabase indisponible → message explicite + bouton « Réessayer ».
   - Jamais d'écran blanc.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : transverse aux US-11 à US-17.
-- **Description technique** : composants `EmptyState` / `ErrorBanner`, `error.tsx` et
-  `loading.tsx` de l'App Router.
+- **Description technique** : `app/staff/loading.tsx` (squelettes `SkeletonCards`),
+  `app/staff/error.tsx` + `app/error.tsx` (composant partagé `ErrorState`, bouton
+  « Réessayer » via `reset()`), `app/not-found.tsx` global pour les `notFound()`. États
+  vides déjà en place (liste enfants, timeline, messagerie). Les pages lèvent désormais
+  l'erreur Supabase pour atteindre la boundary plutôt que d'afficher un encart figé.
+
+### US-39 — Indicateur d'activité du jour sur la carte enfant (`/staff`)
+
+- **User Story** : En tant qu'équipe, je veux voir d'un coup d'œil quels enfants ont déjà
+  des événements aujourd'hui afin de repérer ceux dont la journée n'est pas encore saisie.
+- **Entité** : `events`, `children`
+- **Critères d'acceptation** :
+  - Chaque carte de `/staff` affiche « Aucun événement aujourd'hui » ou « N événement(s)
+    aujourd'hui », dérivé côté interface (pas de champ stocké).
+  - Le comptage porte sur la journée en cours (fuseau Europe/Paris).
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : sortie de **US-11**. Dépend de **US-13** (bornes de date
+  des événements). Route : `/staff`.
+- **Description technique** : `app/staff/page.tsx` requête `events` (RLS staff) sur
+  `parisDayRange(todayInParis())`, agrège par `child_id` en `Record<string, number>`,
+  passé à `ChildrenList` → ligne « N événement(s) aujourd'hui » (verte) / « Aucun événement
+  aujourd'hui » sur chaque carte.
 
 ---
 
@@ -347,10 +448,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Une carte par enfant rattaché : prénom, photo ou initiales, dernier événement du jour,
     bouton « envoyer un message à l'équipe ».
   - Aucun enfant non rattaché n'apparaît.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**. Route : `/parent`.
-- **Description technique** : requête `children` jointe à `family_members` (RLS), filtrée
-  implicitement par la policy.
+- **Description technique** : `app/parent/page.tsx` (Server Component) — `select` sur
+  `children` filtré **implicitement par la RLS** (aucun `where` applicatif) ; requête
+  `events` du jour (fuseau Paris) pour le dernier événement par enfant. Carte = `<Link>`
+  vers `/parent/children/[id]` (stub US-20, protégé par la RLS). Bouton « Envoyer un
+  message à l'équipe » → `/parent/messages/new` (stub US-22). `loading.tsx` / `error.tsx`
+  dédiés, état vide « aucun enfant rattaché → contactez la crèche ». Nav parent ajoutée.
 
 ### US-20 — Journée de mon enfant `/parent/children/[id]`
 
@@ -361,9 +466,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Timeline en lecture seule (le parent ne peut pas ajouter d'événement).
   - Affiche le prénom du membre de l'équipe qui a saisi chaque événement.
   - Sélecteur de date pour les jours précédents.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-19**, **US-21**. Route : `/parent/children/[id]`.
-- **Description technique** : jointure `events.author_id` → `profiles.first_name`.
+- **Description technique** : `app/parent/children/[id]/page.tsx` réutilise les composants
+  partagés `Timeline` et `DateSelector` (extraits de l'espace équipe vers `components/`).
+  Jointure `events` → `author:profiles(first_name)` ; nécessite la policy
+  `supabase/06_profiles_staff_readable.sql` (parent peut lire les profils `staff`).
+  Timeline en lecture seule (pas de bouton d'ajout). `loading.tsx` / `error.tsx` hérités
+  du segment `/parent`.
 
 ### US-21 — Contrôle d'accès serveur parent → enfant
 
@@ -374,11 +484,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Une vérification **côté serveur** confirme que l'enfant consulté est rattaché au parent
     connecté.
   - Sinon → redirection vers `/parent` (ou erreur explicite).
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**. Bloquant pour **US-20**. Vérifié par
   le test E2E **US-32**.
-- **Description technique** : garde en Server Component / `layout.tsx` de `/parent/children/[id]`,
-  en complément de la RLS.
+- **Description technique** : dans `app/parent/children/[id]/page.tsx`, `select` sur
+  `children` filtré par la RLS ; si `single()` ne renvoie rien (enfant non rattaché ou
+  inexistant) → `redirect("/parent")`. Complément de la RLS, pas un substitut.
 
 ### US-22 — Envoi d'un message à l'équipe `/parent/messages/new`
 
@@ -389,11 +500,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Choix de l'enfant concerné.
   - Texte libre limité à **500 caractères** avec **compteur** visible.
   - Bouton d'envoi désactivé si vide ou au-delà de 500 caractères.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**. Route : `/parent/messages/new`.
   Déclenche l'email de notification **US-26**.
-- **Description technique** : Server Action `INSERT messages` (RLS : INSERT parent,
-  `from_profile_id = auth.uid()`, statut `nouveau`).
+- **Description technique** : `message-form.tsx` (`"use client"`) — choix de l'enfant
+  (`SegmentedField`, ou masqué si un seul enfant), `Textarea` + compteur `len/500` qui
+  passe en rouge au-delà, bouton désactivé si vide / trop long / en cours. Server Action
+  `sendMessage` (`actions.ts`) : garde parent, revérifie 1–500, `INSERT messages`
+  (`from_profile_id = profil`, statut `nouveau`), `redirect('/parent/messages?envoye=1')`.
 
 ### US-23 — Historique des messages envoyés (parent)
 
@@ -403,9 +517,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Liste des messages envoyés par le parent, du plus récent au plus ancien.
   - Chaque message rattaché à un enfant, avec date/heure et statut.
-- **Statut** : À faire
-- **Contraintes / Dépendances** : dépend de **US-22**.
-- **Description technique** : lecture `messages` filtrée par `from_profile_id` (RLS).
+- **Statut** : Terminé
+- **Contraintes / Dépendances** : dépend de **US-22**. Route : `/parent/messages`.
+- **Description technique** : `app/parent/messages/page.tsx` — lecture `messages` filtrée
+  `from_profile_id = profil`, jointe à `children.first_name`, triée `created_at desc`.
+  Badge de statut orienté parent (Envoyé / Lu par l'équipe / Traité), bandeau de
+  confirmation si `?envoye=1`, bouton « Écrire ». Nav parent : Mes enfants / Messages.
 
 ### US-24 — États vides parent
 
@@ -416,9 +533,11 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Parent sans enfant rattaché → message invitant à contacter la crèche.
   - Aucun événement pour la date consultée → message bienveillant.
   - Aucun message envoyé → « Vous n'avez pas encore envoyé de message à l'équipe ».
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : transverse aux US-19 à US-23.
-- **Description technique** : composant `EmptyState` partagé avec la Phase 5.
+- **Description technique** : les trois cas sont couverts — `/parent` (aucun enfant
+  rattaché → contacter la crèche), `Timeline` (`emptyHint` par date), `/parent/messages`
+  (aucun message envoyé). Même style d'état vide que la Phase 5.
 
 ---
 
@@ -436,11 +555,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Email branded envoyé via **Resend** (pas l'email Supabase générique) : objet du type
     « Vous êtes invité à suivre la journée de [prénom] sur Les Petits Pas », présentation
     courte, bouton vers le lien, mention RGPD.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-10**. Variables : `RESEND_API_KEY`,
   `RESEND_FROM_EMAIL` (`onboarding@resend.dev`), `NEXT_PUBLIC_APP_URL`.
-- **Description technique** : appel Resend dans la Server Action. Adresse de test → n'envoie
-  qu'aux alias `+` de l'adresse du compte Resend (les comptes parents de test en sont).
+- **Description technique** : `lib/email/parent-invitation.ts` (`import "server-only"`) —
+  objet « Vous êtes invité à suivre la journée de [prénom] sur Les Petits Pas », corps HTML
+  aux couleurs de la charte (styles inline), bouton « Créer mon mot de passe » vers le lien
+  Supabase, mention RGPD. Envoi via SDK `resend`. Erreur non bloquante : le 403 du mode
+  test (destinataire ≠ compte Resend) est renvoyé proprement (base de l'US-27).
 
 ### US-26 — Email de notification à l'équipe (nouveau message)
 
@@ -449,12 +571,18 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Entité** : `messages`, `profiles`
 - **Critères d'acceptation** :
   - Envoi via Resend à chaque `INSERT` dans `messages`, à tous les profils `staff`.
-  - Objet « Nouveau message de [prénom parent] pour [prénom enfant] », extrait + lien vers
+  - Objet « Nouveau message de [prénom parent] pour [prénom enfant] », lien vers
     `/staff/messages`.
   - Aucune donnée médicale ou sensible dans le corps de l'email.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-22**.
-- **Description technique** : envoi déclenché dans la Server Action d'insertion du message.
+- **Description technique** : `sendMessage` (`app/parent/messages/actions.ts`) appelle
+  `notifyStaff()` après l'`INSERT` réussi — **non bloquant** (try/catch, le message est
+  déjà enregistré). Client admin pour lister les profils `staff` puis résoudre leurs
+  emails (`admin.auth.admin.getUserById`). Email via `lib/email/staff-notification.ts`.
+  **Décision RGPD** : contrairement au libellé « extrait », le corps NE contient PAS le
+  texte du message (aside « Point RGPD important » : l'email dit seulement qu'il y a un
+  message, le contenu reste dans l'application). Objet + prénoms + bouton uniquement.
 
 ### US-27 — Gestion des statuts d'envoi Resend
 
@@ -465,9 +593,17 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Succès et erreurs d'envoi gérés sans interrompre le parcours utilisateur.
   - Une erreur 403 (destinataire non autorisé avec l'adresse de test) est loguée, pas
     remontée comme un plantage.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-25**, **US-26**.
-- **Description technique** : `try/catch` autour des appels Resend, retour d'état non bloquant.
+- **Description technique** : appliqué dans les deux flux — invitation (`sendParentInvitation`
+  renvoie `{ ok, message }`, jamais de throw) et notification (`notifyStaff` en try/catch,
+  le message parent est déjà enregistré). Les helpers `lib/email/*` renvoient
+  `{ ok, error }` et journalisent le détail (`console.error`). Vérifié en réel : envoi
+  d'un message parent → message bien enregistré et parcours non interrompu malgré le
+  refus Resend 403 (destinataire non autorisé en mode test), erreur journalisée.
+- **Dev sans domaine vérifié** : `RESEND_TEST_RECIPIENT` (dans `.env.local`) redirige tous
+  les emails vers l'adresse du compte Resend, avec un bandeau « en prod, irait à … ».
+  Vide en production (US-35 : domaine vérifié).
 
 ### US-28 — Bonus : météo du jour + conseil d'habillement
 
@@ -478,11 +614,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Bloc météo affiché sur la timeline parent (et, au choix, sur l'espace équipe).
   - Résumé météo + une phrase de conseil d'habillement.
   - État de chargement et état d'erreur (« Météo indisponible pour le moment »).
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : fonctionnalité bonus retenue = **météo + conseil
   d'habillement**. Dépend de **US-20**.
-- **Description technique** : appel d'une API météo côté serveur (route handler), conseil
-  dérivé de la condition + température.
+- **Description technique** : API **Open-Meteo** (gratuite, sans clé) appelée par le route
+  handler `app/api/weather/route.ts`. Logique pure `lib/weather.ts` (`weatherKind`,
+  `describeWeather`, `clothingAdvice` dérivé de la température + code WMO). Composant client
+  `components/weather-block.tsx` (`fetch('/api/weather')`, 3 états) affiché en tête de la
+  timeline parent, uniquement pour la date du jour.
 
 ### US-29 — Bonus : stockage & documentation
 
@@ -493,10 +632,13 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Écran, stockage en base et composant associés livrés.
   - Documentation dans `docs/featurebonus.md`.
   - Indisponibilité de l'API externe couverte par un scénario de test.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-28**.
-- **Description technique** : table de cache journalier (évite de rappeler l'API à chaque
-  visite), RLS lecture pour tous les utilisateurs connectés.
+- **Description technique** : table `weather_cache` (`supabase/07_weather_cache.sql`),
+  1 ligne par `day`, RLS lecture `authenticated`, écriture réservée à `service_role` (le
+  route handler fait l'`upsert`). Doc complète dans `docs/featurebonus.md` (archi +
+  3 scénarios de test, dont « API indisponible → message + 503, aucun crash »).
+  `lib/weather.test.ts` écrit (exécuté quand le runner est en place, US-30).
 
 ---
 
@@ -510,9 +652,14 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Test du blocage médicament (autorisation absente → refus).
   - Test du calcul de durée de sieste.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-15**, **US-14**.
-- **Description technique** : fonctions pures testées isolément (Vitest ou runner au choix).
+- **Description technique** : **Vitest** (`vitest.config.mts`, `pnpm test`). Garde médicament
+  extraite en fonction pure `checkMedicationAllowed` (`lib/events.ts`) utilisée par la
+  Server Action `addEvent` ET testée. **31 tests au vert** : `lib/events.test.ts`
+  (médicament + `eventSummary`), `lib/utils.test.ts` (`napDurationLabel` + accents + âge),
+  `lib/date.test.ts` (bornes de journée Paris CET/CEST), `lib/weather.test.ts` (conseil
+  d'habillement). Tests E2E dans `tests/` (US-31/32), hors périmètre Vitest.
 
 ### US-31 — Tests E2E Playwright : parcours critiques équipe
 
@@ -523,10 +670,15 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Connexion staff → arrivée sur `/staff` avec la liste des enfants visible.
   - Création d'un événement de type repas → apparition dans la timeline.
   - Blocage médicament : bouton d'enregistrement désactivé pour un enfant sans autorisation.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend des Phases 4 et 5. `playwright.config.ts` :
   `baseURL = http://localhost:3000`, `webServer` lance `pnpm dev`.
-- **Description technique** : `pnpm create playwright`, tests dans `e2e/` ou `tests/`.
+- **Description technique** : `playwright.config.ts` configuré (`baseURL`, `webServer`,
+  `dotenv` charge `.env.local`). `tests/helpers.ts` : `login(page, who)` via `/login`,
+  comptes lus dans `E2E_STAFF_*` / `E2E_PARENT1_*` (valeurs dans `JOURNAL.md`).
+  `tests/auth.spec.ts` (login staff) + `tests/staff-events.spec.ts` (création repas,
+  blocage médicament). Sélecteurs par rôles/labels/textes. Reste : lancer la suite avec
+  les comptes renseignés.
 
 ### US-32 — Tests E2E Playwright : isolation parent
 
@@ -538,9 +690,12 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Parent 1 tente d'accéder à la fiche d'un enfant qui n'est pas le sien → erreur ou
     redirection vers `/parent`.
   - Envoi d'un message par parent 1 → réception côté équipe dans `/staff/messages`.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-04**, **US-21**, **US-22**.
-- **Description technique** : comptes de test parent 1 / parent 2 / staff.
+- **Description technique** : `tests/auth.spec.ts` (parent1 ne voit que Ana Maria + Sarah),
+  `tests/parent-isolation.spec.ts` (URL forgée vers Ilyès → redirection `/parent`, id
+  récupéré via une session staff), `tests/parent-messages.spec.ts` (parent1 envoie →
+  staff retrouve dans `/staff/messages` via un marqueur unique). Reste : lancer la suite.
 
 ### US-33 — Intégration continue Playwright
 
@@ -550,10 +705,17 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
 - **Critères d'acceptation** :
   - Workflow `.github/workflows/playwright.yml` créé par `pnpm create playwright`.
   - Les tests tournent sur push et sur PR.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-31**, **US-32**. Node ≥ 22.13 (pnpm 11).
-- **Description technique** : secrets d'environnement (Supabase de test, Resend) en variables
-  GitHub Actions.
+  7 secrets GitHub créés (Repository secrets) : `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `E2E_STAFF_EMAIL`,
+  `E2E_STAFF_PASSWORD`, `E2E_PARENT1_EMAIL`, `E2E_PARENT1_PASSWORD`.
+- **Description technique** : workflow `CI` — 2 jobs. `checks` (aucun secret) : `pnpm lint` +
+  `pnpm test` (Vitest) + `pnpm build`. `e2e` : step de garde qui échoue tôt si un secret
+  manque, `playwright install chromium`, `pnpm build`, serveur de **prod** (`pnpm start`)
+  lancé par le webServer Playwright, `playwright test --project=chromium`. Rapport en
+  artefact. Déclencheurs : push sur `staging`/`main`, PR vers `main`. Les deux jobs verts
+  sur `staging` le 2026-09-02.
 
 ### US-34 — Recette & cas limites
 
@@ -564,9 +726,18 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Scénarios de recette dans `docs/recette/`.
   - Cas d'erreur couverts : identifiants invalides, accès à une ressource non autorisée,
     aucune donnée pour le jour consulté, API du bonus indisponible.
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de toutes les phases précédentes.
-- **Description technique** : documentation de recette (Markdown) + preuves (captures).
+- **Description technique** : [`docs/recette/cahierrecette.md`](docs/recette/cahierrecette.md)
+  rédigé (SC01–SC26 : ID, objectif, prérequis, étapes, résultat attendu/obtenu,
+  commentaire). Tableau de synthèse Go/NoGo en tête. Règle de mise à jour dans `AGENTS.md`.
+  **26/26 scénarios `OK`, 4/4 NoGo `OK`** (SC11/SC17/SC26 joués le 2026-09-02).
+  Cas d'erreur couverts : SC03 (identifiants), SC17/SC18 (accès non autorisé), SC21
+  (aucune donnée), SC26 (API bonus indisponible). Captures SC17/SC26 dans `docs/recette/`.
+  Le cahier reste vivant (mis à jour à chaque changement de comportement).
+  **Tableau de bugs** : [`docs/recette/bugs.md`](docs/recette/bugs.md) — BUG001–BUG003
+  (rencontrés en dev, corrigés avant validation des US), aucun bug en recette formelle.
+  Règle de tenue ajoutée dans `AGENTS.md`.
 
 ### US-35 — Base de production & variables d'environnement
 

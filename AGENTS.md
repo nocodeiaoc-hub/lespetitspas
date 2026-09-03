@@ -72,8 +72,9 @@ Routes attendues : `/login`, `/staff`, `/staff/children/[id]`, `/staff/messages`
 pnpm dev            # serveur de développement (http://localhost:3000)
 pnpm build          # build de production
 pnpm lint           # ESLint
-pnpm test           # tests unitaires (à mettre en place en Phase 8)
-pnpm exec playwright test   # tests end-to-end (à mettre en place en Phase 8)
+pnpm test           # tests unitaires Vitest (logique pure de lib/**)
+pnpm test:watch     # Vitest en mode watch
+pnpm test:e2e       # tests end-to-end Playwright (comptes E2E_* dans .env.local)
 ```
 
 Les scripts SQL ne s'exécutent pas via une commande : ils s'appliquent à la main dans le
@@ -95,6 +96,64 @@ qu'on ait à le demander** :
 6. Ne jamais supprimer une ligne du backlog ; une story abandonnée passe en `Terminé` avec
    une note, ou reste `À faire` avec une note d'explication.
 
+## Cahier de recette — règle de mise à jour (IMPORTANT)
+
+Le fichier [`docs/recette/cahierrecette.md`](docs/recette/cahierrecette.md) liste les
+scénarios de test (ID, objectif, prérequis, étapes, résultat attendu, résultat obtenu,
+commentaire/capture si KO). Il est rédigé **avant** de tester et tenu vivant **sans qu'on
+ait à le demander** :
+
+1. **Dès qu'un scénario est joué** (par l'humain ou en vérification agent), mettre à jour
+   son **Résultat obtenu** (`OK` / `KO` / `Bloquant` / `Non joué`) et, si `KO`/`Bloquant`,
+   la colonne **Commentaire** (cause, et capture à joindre dans `docs/recette/`).
+2. **Dès qu'un comportement de l'application change** (nouvelle US, correctif, refactor
+   visible), revoir les scénarios impactés : ajuster le résultat attendu, repasser le
+   **Résultat obtenu** à `Non joué`, ajouter un scénario si un nouveau parcours apparaît
+   (IDs `SCxx` séquentiels, jamais réattribués).
+3. Tenir à jour le **tableau de synthèse** en tête de fichier (vue Go/NoGo).
+4. Après mise à jour, proposer le commit :
+   `git add docs/recette/ && git commit -m "docs: maj cahier de recette"`.
+
+L'humain valide le contenu et garde la main sur le choix des scénarios.
+
+## Tableau de bugs — règle de mise à jour (IMPORTANT)
+
+Le fichier [`docs/recette/bugs.md`](docs/recette/bugs.md) recense **tout** problème
+rencontré, même mineur. Tenu vivant **sans qu'on ait à le demander** :
+
+1. **Dès qu'un bug est détecté** : créer l'entrée (`BUGxxx`, IDs séquentiels jamais
+   réattribués) — description en une phrase, page/route concernée, comportement
+   attendu, comportement observé, sévérité proposée (`Bloquant` / `Majeur` / `Mineur`),
+   statut `Nouveau`.
+2. **Bug `Bloquant` ou `Majeur`** : créer une branche `fix/BUGxxx-…` depuis `staging`,
+   corriger, ajouter/adapter un test, vérifier (`pnpm build`, `pnpm lint`, scénario de
+   recette concerné), fusionner.
+3. **Dès qu'un bug est corrigé** : passer le statut à `Corrigé` avec l'**ID du commit
+   ou de la PR**, **déplacer la ligne de « Bugs ouverts » vers « Bugs corrigés »**
+   (jamais de suppression — traçabilité), puis rejouer et mettre à jour le scénario de
+   recette impacté.
+4. Tenir à jour les deux sous-tableaux (« Bugs ouverts » / « Bugs corrigés »).
+5. Après mise à jour, proposer :
+   `git add docs/recette/ && git commit -m "docs: maj tableau de bugs"`.
+
+L'humain valide la sévérité et la priorisation.
+
+## PV de recette — règle de mise à jour (IMPORTANT)
+
+Le fichier [`docs/recette/pvrecette.md`](docs/recette/pvrecette.md) est le procès-verbal
+de recette (décision Go / Go conditionnel / NoGo). L'IA le **prépare et le tient à jour**,
+**sans trancher** :
+
+1. Générer / rafraîchir le PV en **synthétisant** `cahierrecette.md` et `bugs.md` :
+   version (date, environnement, testeur), **fonctionnalités couvertes** et leur statut,
+   **bugs résiduels** (non corrigés + justification), **risques connus** en production.
+2. **Laisser vides** la ligne **Décision** et sa **Justification** — c'est l'humain qui
+   tranche et signe. Ne jamais y écrire une décision.
+3. Rafraîchir le PV à chaque évolution du cahier de recette ou du tableau de bugs
+   (nouveau scénario `KO`, bug ouvert/corrigé, risque levé).
+4. Après mise à jour, proposer :
+   `git add docs/recette/ && git commit -m "docs: maj PV de recette"`.
+
 ## Conventions & patterns
 
 - **Langue de l'interface : français.** Textes utilisateur, libellés, messages d'erreur.
@@ -105,11 +164,24 @@ qu'on ait à le demander** :
   RLS ; sinon passer par le serveur.
 - **La RLS est la source de vérité de la sécurité.** Les gardes côté application (redirection
   d'un parent hors de ses enfants) sont un complément, pas un substitut.
+- **Tous les écrans sont construits en composants ShadCN et alignés sur la charte Nuage.**
+  Règle non négociable : dès qu'un composant ShadCN existe pour un besoin (bouton, champ,
+  carte, dialog, badge, onglets, sélecteur de date…), on l'utilise et on le personnalise
+  via les tokens — jamais de HTML brut restylé à la main, jamais de couleur / rayon /
+  ombre / police en dur. Cette règle s'applique automatiquement à chaque écran, sans avoir
+  à la redemander.
 - **Styles** : classes Tailwind dans le JSX (`className="flex items-center gap-4 p-4"`),
-  jamais de fichier CSS séparé. Réutiliser les tokens de la charte Nuage (`bg-primary`,
-  `text-ink`…) plutôt que des valeurs en dur.
+  jamais de fichier CSS séparé. Toujours les tokens de la charte Nuage (définis dans
+  [`app/globals.css`](app/globals.css)) plutôt que des valeurs en dur :
+  - sémantiques ShadCN : `bg-primary`, `bg-card`, `text-muted-foreground`, `border-border`,
+    `ring-ring`, `bg-destructive`…
+  - charte Nuage : `text-ink`, `text-ink-soft`, `bg-surface`, `bg-canvas`, `border-line`,
+    `bg-primary-soft`, `bg-secondary-strong`, `bg-accent-strong`, `text-success`,
+    `text-warning`, `rounded-pill`, `shadow-soft`, `shadow-lift`, `font-heading`.
+  - couleurs d'événement : `bg-event-repas` / `text-event-repas-foreground`, idem `sieste`,
+    `activite`, `medicament`, `incident`.
 - **Composants ShadCN** : les ajouter avec `pnpm dlx shadcn@latest add <composant>`,
-  puis les personnaliser.
+  puis les personnaliser via les tokens de la charte (ne pas les contourner).
 - **Responsive** : navigation par sidebar sur desktop, bottom navigation sur mobile
   (l'équipe utilise l'app debout sur téléphone/tablette). Cibles tactiles ≥ 44 px.
 - **Timeline** : tri `created_at` décroissant, filtre « Aujourd'hui » par défaut, sélecteur

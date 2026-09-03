@@ -21,6 +21,8 @@ On n'utilise pas le CLI Supabase pour ce projet (Phase 4 = dashboard).
 | 3 | `03_rls.sql` | Active la RLS + toutes les policies sur les 5 tables | Vérifier dans _Table Editor_ la mention « RLS enabled » sur chaque table. |
 | 4 | `04_seed_test_data.sql` | Promeut le staff, crée Ana Maria / Sarah / Ilyès, crée les liens parent-enfant | **Avant** : _Rechercher/Remplacer_ `prenom.nom` → la partie avant le `@` de ton Gmail. |
 | 5 | `05_rls_test.sql` | Teste l'isolation (parent 1 ↝ Ana Maria + Sarah, parent 2 ↝ Ilyès, staff ↝ les 3) | Remplacer `prenom.nom`, puis lancer **chaque bloc séparément** (sélection + Ctrl/Cmd+Entrée) : le SQL Editor n'affiche que le dernier résultat. |
+| 6 | `06_profiles_staff_readable.sql` | Ajoute une policy : tout utilisateur connecté peut lire les profils `staff` (prénom du staff affiché au parent sur la timeline, US-20). Les profils `parent` restent cloisonnés. | À rejouer sur `lespetitspas-prod`. |
+| 7 | `07_weather_cache.sql` | Table `weather_cache` (cache journalier de la météo, fonctionnalité bonus US-28/US-29). Lecture pour tout utilisateur connecté, écriture réservée à `service_role`. | À rejouer sur `lespetitspas-prod`. |
 
 ## Critère bloquant
 

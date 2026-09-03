@@ -4,127 +4,235 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  Charte graphique « Nuage » — Les Petits Pas.
+  Source de vérité : maquette Phase 2 (prototype/src/index.css).
+  Tons doux et arrondis adaptés à une crèche : lavande pervenche, menthe sauge,
+  rose blush, sur fond bleu très clair, texte marine doux.
+
+  Deux familles de tokens exposées en classes Tailwind :
+   - sémantiques ShadCN : bg-primary, bg-card, text-muted-foreground, border-border…
+   - charte Nuage : text-ink, text-ink-soft, bg-surface, bg-canvas, border-line,
+     bg-primary-soft, bg-accent-strong, rounded-pill, shadow-soft, font-heading,
+     bg-event-repas / text-event-repas-foreground …
+*/
 @theme inline {
+  /* --- Sémantique ShadCN --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* --- Palette étendue « Nuage » --- */
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary-strong: var(--secondary-strong);
+  --color-secondary-soft: var(--secondary-soft);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-success: var(--success);
+  --color-success-strong: var(--success-strong);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
+  --color-danger-soft: var(--danger-soft);
+
+  /* --- Couleurs par type d'événement (cf. AGENTS.md) --- */
+  --color-event-repas: #e0f2f0;
+  --color-event-repas-foreground: #2f8f85;
+  --color-event-sieste: #e6e9f7;
+  --color-event-sieste-foreground: #5b66b8;
+  --color-event-activite: #fde6ee;
+  --color-event-activite-foreground: #c65f89;
+  --color-event-medicament: #fff2df;
+  --color-event-medicament-foreground: #b9781f;
+  --color-event-incident: #fdecec;
+  --color-event-incident-foreground: #c62828;
+
+  /* --- Typographie --- */
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-mono);
+
+  /* --- Rayons (doux, arrondis) --- */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-pill: 999px;
+
+  /* --- Ombres portées douces (teintées marine) --- */
+  --shadow-soft: 0 1px 2px rgba(26, 35, 126, 0.04), 0 8px 24px rgba(26, 35, 126, 0.08);
+  --shadow-lift: 0 2px 6px rgba(26, 35, 126, 0.06), 0 18px 40px rgba(26, 35, 126, 0.14);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 1rem;
+
+  /* Sémantique ShadCN — thème clair « Nuage » */
+  --background: #f0f4f8; /* canvas — bleu très clair */
+  --foreground: #1a237e; /* ink — marine doux */
+  --card: #ffffff;
+  --card-foreground: #1a237e;
+  --popover: #ffffff;
+  --popover-foreground: #1a237e;
+  --primary: #9fa8da; /* lavande pervenche */
+  --primary-foreground: #ffffff;
+  --secondary: #e0f2f0; /* menthe très douce (boutons secondaires) */
+  --secondary-foreground: #1a237e;
+  --muted: #e6e9f7; /* lavande très douce */
+  --muted-foreground: #78909c; /* ink-soft */
+  --accent: #fde6ee; /* rose blush doux (survols, surbrillances) */
+  --accent-foreground: #1a237e;
+  --destructive: #c62828;
+  --border: #e2e8f0; /* line */
+  --input: #e2e8f0;
+  --ring: #7d8ac8; /* primary-strong */
+  --chart-1: #9fa8da;
+  --chart-2: #80cbc4;
+  --chart-3: #f48fb1;
+  --chart-4: #f0a850;
+  --chart-5: #4caf82;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a237e;
+  --sidebar-primary: #9fa8da;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e6e9f7; /* état actif de navigation */
+  --sidebar-accent-foreground: #1a237e;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #7d8ac8;
+
+  /* Palette étendue « Nuage » */
+  --primary-strong: #7d8ac8;
+  --primary-soft: #e6e9f7;
+  --secondary-strong: #80cbc4; /* menthe sauge pleine */
+  --secondary-soft: #e0f2f0;
+  --accent-strong: #f48fb1; /* rose blush plein */
+  --accent-soft: #fde6ee;
+  --canvas: #f0f4f8;
+  --surface: #ffffff;
+  --ink: #1a237e;
+  --ink-soft: #78909c;
+  --line: #e2e8f0;
+  --success: #4caf82;
+  --success-strong: #2f8f85;
+  --success-soft: #e0f2f0;
+  --warning: #f0a850;
+  --warning-soft: #fff2df;
+  --danger: #ef9a9a;
+  --danger-strong: #c62828;
+  --danger-soft: #fdecec;
+
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #12142b;
+  --foreground: #e8eaf6;
+  --card: #1b1e3d;
+  --card-foreground: #e8eaf6;
+  --popover: #1b1e3d;
+  --popover-foreground: #e8eaf6;
+  --primary: #9fa8da;
+  --primary-foreground: #12142b;
+  --secondary: #26305c;
+  --secondary-foreground: #e8eaf6;
+  --muted: #26305c;
+  --muted-foreground: #a6b0d0;
+  --accent: #3a2b3f;
+  --accent-foreground: #f6e6ee;
+  --destructive: #ef9a9a;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: #9fa8da;
+  --chart-1: #9fa8da;
+  --chart-2: #80cbc4;
+  --chart-3: #f48fb1;
+  --chart-4: #f0a850;
+  --chart-5: #4caf82;
+
+  --sidebar: #1b1e3d;
+  --sidebar-foreground: #e8eaf6;
+  --sidebar-primary: #9fa8da;
+  --sidebar-primary-foreground: #12142b;
+  --sidebar-accent: #26305c;
+  --sidebar-accent-foreground: #e8eaf6;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #9fa8da;
+
+  --primary-strong: #b6bde8;
+  --primary-soft: #26305c;
+  --secondary-strong: #80cbc4;
+  --secondary-soft: #22423f;
+  --accent-strong: #f48fb1;
+  --accent-soft: #3a2b3f;
+  --canvas: #12142b;
+  --surface: #1b1e3d;
+  --ink: #e8eaf6;
+  --ink-soft: #a6b0d0;
+  --line: rgba(255, 255, 255, 0.1);
+  --success: #6cc79b;
+  --success-strong: #8fd8b0;
+  --success-soft: #22423f;
+  --warning: #f0a850;
+  --warning-soft: #3a2f1e;
+  --danger: #ef9a9a;
+  --danger-strong: #ef9a9a;
+  --danger-soft: #3a1f1f;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground;
   }
-  html {
-    @apply font-sans;
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading font-bold text-ink;
+    line-height: 1.2;
   }
 }

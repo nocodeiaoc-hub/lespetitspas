@@ -2,6 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "app",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
       "name": "prototype",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "prototype", "dev", "--port", "5199", "--strictPort"],
