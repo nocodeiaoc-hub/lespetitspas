@@ -749,11 +749,21 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
     jamais les données de test.
   - Variables réparties dans Vercel entre Production (`lespetitspas-prod`) et Preview
     (`lespetitspas`).
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-02**, **US-03**, **US-04**.
 - **Description technique** : `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
   `NEXT_PUBLIC_APP_URL`, `SUPABASE_SERVICE_ROLE_KEY` (serveur), `RESEND_API_KEY`,
   `RESEND_FROM_EMAIL`.
+  Base `lespetitspas-prod` créée : scripts de **structure seulement** appliqués
+  (`01`, `02`, `03`, `06`, `07`) + un jeu de **données de démonstration** fictives
+  (3 comptes, 3 enfants Ana Maria / Sarah / Ilyès, liens parent-enfant) adapté de la
+  Phase 4 étape 5 — jamais le seed de test `04`. Variables réparties dans Vercel entre
+  **Production** (`lespetitspas-prod`) et **Preview** (`lespetitspas`). Isolation vérifiée
+  en prod (parent 2 ne voit pas les enfants de parent 1). Mots de passe de prod distincts
+  des comptes de test, notés uniquement dans `JOURNAL.md`.
+  Risques de suivi consignés dans [`docs/recette/pvrecette.md`](docs/recette/pvrecette.md)
+  (R2 : sortie du mode test Resend = domaine vérifié, à faire avant ouverture aux vraies
+  familles).
 
 ### US-36 — Mise en production via Pull Request
 
@@ -765,6 +775,11 @@ voir la règle dans [`AGENTS.md`](AGENTS.md) (section « Product Backlog »).
   - Le passage en production se fait par une Pull Request depuis `staging`, déployée par
     Vercel en Production.
   - L'URL de production est notée dans `JOURNAL.md` (non commité).
-- **Statut** : À faire
+- **Statut** : Terminé
 - **Contraintes / Dépendances** : dépend de **US-34**.
-- **Description technique** : branche `staging` → Preview, `main` → Production.
+- **Description technique** : branche `staging` → Preview, `main` → Production. Aucun push
+  direct sur `main` : passage en production par Pull Request `staging → main` (PR #4 puis
+  #5 sur `nocodeiaoc-hub/lespetitspas`), déployée automatiquement par Vercel en Production
+  sur `https://lespetitspas-kappa.vercel.app/`. Documents de recette et URL de production
+  archivés sur `main` (Phase 8, étape K). URL de production notée dans `JOURNAL.md`
+  (local, non commité) et dans `README.md` (public, sans secret).
