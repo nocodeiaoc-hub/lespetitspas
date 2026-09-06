@@ -105,9 +105,7 @@ l'historique git) · risques R1 et R2 = **prérequis de mise en production à le
 
 ## Décision
 
-**Go** — mise en production autorisée, sous réserve de lever les prérequis **R1** et **R2**
-(configuration de `lespetitspas-prod` et sortie du mode test Resend) avant d'ouvrir
-l'application à de vraies familles.
+**Go conditionnel**
 
 ## Justification
 
@@ -134,4 +132,4 @@ saisie tant que R1 n'est pas levé.**
 
 ---
 
-_Signé : ______________________  Date : _______________________
+_Signé : nocodeia.oc  Date : 03/09/2026
